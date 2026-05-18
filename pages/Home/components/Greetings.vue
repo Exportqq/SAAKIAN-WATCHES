@@ -1,34 +1,47 @@
 <template>
-  <div class="flex gap-[26px] flex-col">
+  <div class="flex max-md:gap-0 gap-[26px] flex-col">
     <h1
-      class="h-[154px] w-[667px] text-[#000000] font-extrabold text-[72px] leading-[52px]"
+      class="max-md:w-[339px] max-md:h-[84px] h-[154px] w-[667px] text-[#000000] font-extrabold max-md:text-[32px] text-[72px] max-md:leading-[28px] leading-[52px]"
     >
       Воплощение элегантности на вашем запястье
     </h1>
     <h1
-      class="h-[29px] w-[535px] text-[#666666] font-medium text-[20px] leading-[15px]"
+      class="h-[29px] max-md:w-[344px] w-[535px] max-md:mt-[3px] text-[#666666] font-medium max-md:text-[14px] text-[20px] leading-[15px]"
     >
       Откройте мир часов, созданных подчеркнуть ваш стиль и индивидуальность.
     </h1>
     <ButtonUI
+      v-if="isDesktop"
       :text="'СДЕЛАТЬ ЗАКАЗ'"
       :max-width="false"
       :rounded="62"
-      :paddingXMobile="58"
-      :paddingYMobile="16"
       :paddingX="58"
       :paddingY="16"
     />
+    <ButtonUI
+      class="mt-[25px]"
+      v-if="isMobile"
+      :text="'СДЕЛАТЬ ЗАКАЗ'"
+      :max-width="true"
+      :rounded="62"
+      :paddingYMobile="16"
+    />
   </div>
 
-  <div class="flex gap-[32px] mt-[48px]">
+  <div class="flex gap-[32px] max-md:mt-[26px] mt-[48px] max-md:justify-center">
     <div
       data-aos="fade-up"
       data-aos-anchor-placement="center-bottom"
       class="flex flex-col"
     >
-      <h1 class="h-[49px] text-[#000000] font-semibold text-[40px]">200+</h1>
-      <h2 class="h-[49px] text-[#666666] font-regular text-[16px]">БРЕНДОВ</h2>
+      <h1
+        class="h-[49px] text-[#000000] font-semibold text-[40px] max-md:h-[29px] max-md:text-[24px]"
+      >
+        200+
+      </h1>
+      <h2 class="text-[#666666] font-regular text-[16px] max-md:text-[12px]">
+        БРЕНДОВ
+      </h2>
     </div>
     <div class="bg-[#E5E5E5] w-[1px] h-[74px]"></div>
     <div
@@ -36,23 +49,56 @@
       data-aos-anchor-placement="center-bottom"
       class="flex flex-col"
     >
-      <h1 class="h-[49px] text-[#000000] font-semibold text-[40px]">1000+</h1>
-      <h2 class="h-[49px] text-[#666666] font-regular text-[16px]">МОДЕЛЕЙ</h2>
+      <h1
+        class="h-[49px] text-[#000000] font-semibold text-[40px] max-md:h-[29px] max-md:text-[24px]"
+      >
+        1000+
+      </h1>
+      <h2 class="text-[#666666] font-regular text-[16px] max-md:text-[12px]">
+        МОДЕЛЕЙ
+      </h2>
     </div>
-    <div class="bg-[#E5E5E5] w-[1px] h-[74px]"></div>
+    <div v-if="isDesktop" class="bg-[#E5E5E5] w-[1px] h-[74px]"></div>
     <div
+      v-if="!isMobile"
       data-aos="fade-up"
       data-aos-anchor-placement="center-bottom"
       class="flex flex-col"
     >
-      <h1 class="h-[49px] text-[#000000] font-semibold text-[40px]">33000+</h1>
-      <h2 class="h-[49px] text-[#666666] font-regular text-[16px]">ОТЗЫВОВ</h2>
+      <h1
+        class="h-[49px] text-[#000000] font-semibold text-[40px] max-md:h-[29px] max-md:text-[24px]"
+      >
+        33000+
+      </h1>
+      <h2 class="text-[#666666] font-regular text-[16px] max-md:text-[12px]">
+        ОТЗЫВОВ
+      </h2>
+    </div>
+  </div>
+  <div class="flex justify-center">
+    <div
+      v-if="isMobile"
+      data-aos="fade-up"
+      data-aos-anchor-placement="center-bottom"
+      class="flex flex-col"
+    >
+      <h1
+        class="h-[49px] text-[#000000] font-semibold text-[40px] max-md:h-[29px] max-md:text-[24px]"
+      >
+        33000+
+      </h1>
+      <h2 class="text-[#666666] font-regular text-[16px] max-md:text-[12px]">
+        ОТЗЫВОВ
+      </h2>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import ButtonUI from "~/UI/ButtonUI.vue";
+import useWindowSizes from "~/src/composables/window_size";
+import ButtonUI from "~/src/UI/ButtonUI.vue";
+
+const { isDesktop, isMobile } = useWindowSizes();
 </script>
 
 <style scoped></style>
