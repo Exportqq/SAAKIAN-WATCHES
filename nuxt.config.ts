@@ -1,9 +1,9 @@
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineNuxtConfig({
-  compatibilityDate: "2025-07-15",
+  compatibilityDate: '2025-07-15',
 
-  css: ["~/assets/css/global.css", "aos/dist/aos.css"],
+  css: ['~/assets/css/global.css', 'aos/dist/aos.css'],
 
   vite: {
     plugins: [tailwindcss()],
@@ -11,5 +11,11 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  plugins: [{ src: "~/plugins/aos", mode: "client" }],
+  plugins: [{ src: '~/plugins/aos', mode: 'client' }],
+
+  runtimeConfig: {
+    public: {
+      apiBase: 'https://imwelldev-app.online',
+    },
+  },
 });
