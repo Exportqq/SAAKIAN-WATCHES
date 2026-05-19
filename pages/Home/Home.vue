@@ -15,10 +15,13 @@
 </template>
 
 <script lang="ts" setup>
+import useWindowSizes from '~/src/composables/window_size';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 import Greetings from './components/Greetings.vue';
 import NewCollection from './components/NewCollection.vue';
 import PopularCollection from './components/PopularCollection.vue';
+
+const { isMobile } = useWindowSizes();
 </script>
 
 <style scoped></style>
