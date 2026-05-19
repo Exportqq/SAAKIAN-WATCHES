@@ -4,7 +4,7 @@
       <img src="/watch.png" class="w-full h-full object-contain" />
     </div>
 
-    <div class="flex justify-between items-center px-4 mt-4">
+    <div class="flex justify-between items-center px-4 mt-[clamp(10px,1.2vw,16px)]">
       <div>
         <h1 class="text-black font-medium text-[clamp(14px,1.2vw,20px)] h-[clamp(16px,1.2vw,24px)]">TISSOT PR 100</h1>
 
