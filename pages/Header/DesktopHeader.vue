@@ -1,5 +1,6 @@
 <template>
   <div class="relative w-full flex items-center justify-center h-[96px] max-md:h-[64px] overflow-hidden">
+    <!-- mobile menu button -->
     <button
       v-if="isMobile"
       class="absolute left-4 z-50 w-6 h-6 flex items-center justify-center"
@@ -23,6 +24,7 @@
       </div>
     </button>
 
+    <!-- desktop nav -->
     <div v-if="!isMobile" class="flex gap-[68px] items-center">
       <div class="flex gap-[35px]">
         <a class="relative text-[16px] cursor-pointer">КАТАЛОГ</a>
@@ -37,12 +39,27 @@
       </div>
     </div>
 
+    <!-- mobile logo -->
     <div v-else class="w-full flex items-center justify-center">
       <img class="w-[140px] h-[36px]" src="/logo.svg" />
     </div>
 
-    <img class="absolute right-[200px] max-md:right-4 w-[28px] h-[28px] cursor-pointer z-50" src="/icons/basket.svg" />
+    <!-- 🛒 CART ICON -->
+    <div class="absolute right-[200px] max-md:right-4 z-50">
+      <div class="relative cursor-pointer" @click="goToBasket">
+        <img class="w-[28px] h-[28px]" src="/icons/basket.svg" />
 
+        <!-- BADGE -->
+        <div
+          v-if="basketCount > 0"
+          class="absolute -bottom-1 -left-2 bg-black text-white text-[10px] w-[18px] h-[18px] flex items-center justify-center rounded-full"
+        >
+          {{ basketCount }}
+        </div>
+      </div>
+    </div>
+
+    <!-- mobile menu -->
     <div
       v-if="isMobile"
       class="fixed top-0 left-0 h-full w-full bg-white z-40 flex flex-col items-center justify-center gap-6 transform transition-all duration-500 ease-out"
@@ -57,9 +74,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+import { useBasket } from '~/src/composables/AddBasket';
 import useWindowSizes from '~/src/composables/window_size';
+
+const router = useRouter();
 
 const { isMobile } = useWindowSizes();
 const isMenuOpen = ref(false);
+
+const { basket, getBasket } = useBasket();
+
+const basketCount = computed(() => {
+  return basket.value.reduce((sum, item) => sum + item.quantity, 0);
+});
+
+const goToBasket = () => {
+  router.push('/Basket/Basket');
+};
+
+onMounted(() => {
+  getBasket();
+});
 </script>

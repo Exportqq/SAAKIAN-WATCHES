@@ -1,48 +1,43 @@
-<script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { useWatch } from '~/src/composables/GetWatch';
-
-const route = useRoute();
-
-const { currentWatch, getWatchById, watchesLoading } = useWatch();
-
-const API_URL = 'https://watches-api-c9i5.onrender.com';
-
-const normalizeImage = (path?: string) => {
-  if (!path) return '/watch.png';
-  if (path.startsWith('http')) return path;
-  return `${API_URL}${path}`;
-};
-
-onMounted(() => {
-  getWatchById(route.params.id as string);
-});
-</script>
-
 <template>
+  <DesktopHeader />
+
   <div v-if="watchesLoading" class="p-10">Loading...</div>
 
   <div v-else-if="currentWatch" class="max-w-[1400px] mx-auto px-4 py-10">
     <div class="grid grid-cols-2 max-md:grid-cols-1 gap-[40px]">
-      <!-- IMAGE -->
-      <div class="bg-[#F0EEED] w-full aspect-square flex items-center justify-center">
-        <img :src="normalizeImage(currentWatch.image)" class="w-full h-full object-contain" />
+      <div class="space-y-4">
+        <div class="bg-[#F0EEED] w-full aspect-square flex items-center justify-center rounded-[20px] overflow-hidden">
+          <img
+            :src="normalizeImage(currentWatch.images?.[activeImage])"
+            class="w-full h-full object-contain rounded-[20px]"
+          />
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <div
+            v-for="(img, index) in currentWatch.images"
+            :key="index"
+            class="bg-[#F0EEED] aspect-square cursor-pointer border-2 rounded-[20px] overflow-hidden transition-all duration-300 ease-in-out hover:border-black"
+            :class="activeImage === index ? 'border-black scale-[1.03]' : 'border-transparent'"
+            @click="activeImage = index"
+          >
+            <img :src="normalizeImage(img)" class="w-full h-full object-contain rounded-[20px]" />
+          </div>
+        </div>
       </div>
 
-      <!-- INFO -->
       <div>
-        <h1 class="font-extrabold text-[40px] max-md:text-[28px]">
+        <h1 class="font-extrabold text-[40px] max-md:text-[24px]">
           {{ currentWatch.title }}
         </h1>
 
-        <h2 class="mt-[10px] text-[28px] font-bold">{{ currentWatch.price.toLocaleString() }} ₽</h2>
+        <h2 class="mt-[0px] text-[32px] font-semibold">{{ currentWatch.price.toLocaleString() }} ₽</h2>
 
-        <p class="mt-[20px] text-[16px] leading-[26px] text-black/70">
+        <p class="mt-[20px] text-[16px] font-medium leading-[22px] text-[#666666]">
           {{ currentWatch.description }}
         </p>
 
-        <div class="mt-[30px] space-y-2 text-[14px]">
+        <div class="mt-[30px] space-y-1 text-[18px]">
           <p><b>Бренд:</b> {{ currentWatch.brand }}</p>
           <p><b>Страна:</b> {{ currentWatch.brand_country }}</p>
           <p><b>Механизм:</b> {{ currentWatch.mechanism }}</p>
@@ -52,10 +47,87 @@ onMounted(() => {
           <p><b>Пол:</b> {{ currentWatch.gender }}</p>
         </div>
 
-        <button class="mt-[40px] bg-black text-white px-10 h-[56px] rounded-full">Добавить в корзину</button>
+        <div class="mt-[40px] flex items-center gap-4">
+          <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center gap-[38px]">
+            <button
+              class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
+              @click="decreaseQuantity"
+            >
+              <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain" />
+            </button>
+
+            <span class="text-[20px] font-semibold min-w-[20px] text-center">
+              {{ quantity }}
+            </span>
+
+            <button
+              class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
+              @click="quantity++"
+            >
+              <img src="/icons/plus.svg" alt="plus" class="w-full h-full object-contain" />
+            </button>
+          </div>
+
+          <ButtonUI
+            :text="'ДОБАВИТЬ В КОРЗИНУ'"
+            :max-width="true"
+            :rounded="62"
+            :paddingX="58"
+            :paddingY="10"
+            @click="addCurrentWatchToBasket"
+          />
+        </div>
       </div>
     </div>
   </div>
 
   <div v-else class="p-10">Not found</div>
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+
+import { useBasket } from '~/src/composables/AddBasket';
+import { useWatch } from '~/src/composables/GetWatch';
+
+import ButtonUI from '~/src/UI/ButtonUI.vue';
+import DesktopHeader from '../Header/DesktopHeader.vue';
+
+const route = useRoute();
+
+const { currentWatch, getWatchById, watchesLoading } = useWatch();
+const { addToBasket } = useBasket();
+
+const API_URL = 'https://watches-api-c9i5.onrender.com';
+
+const activeImage = ref(0);
+const quantity = ref(1);
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) quantity.value--;
+};
+
+const normalizeImage = (path?: string) => {
+  if (!path) return '/watch.png';
+  if (path.startsWith('http')) return path;
+  return `${API_URL}${path}`;
+};
+
+const addCurrentWatchToBasket = async () => {
+  if (!currentWatch.value) return;
+
+  try {
+    await addToBasket(currentWatch.value.custom_id, quantity.value);
+
+    alert('Товар добавлен в корзину');
+  } catch (e) {
+    console.error(e);
+    alert('Ошибка добавления');
+  }
+};
+
+onMounted(() => {
+  getWatchById(route.params.id as string);
+});
+</script>

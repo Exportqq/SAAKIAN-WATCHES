@@ -3,21 +3,17 @@ import type { Watch } from '../composables/GetWatch';
 
 defineProps<{ watch: Watch }>();
 
-const config = useRuntimeConfig();
-
-const getImageUrl = (path: string) => {
+const getImageUrl = (path?: string) => {
   if (!path) return '/watch.png';
-
   if (path.startsWith('http')) return path;
-
   return `https://watches-api-c9i5.onrender.com${path}`;
 };
 </script>
 
 <template>
-  <NuxtLink :to="`/watch/${watch.id}`" class="w-full">
+  <NuxtLink :to="`/watch/${watch.id}`" class="w-full block">
     <div class="bg-[#F0EEED] w-full aspect-square flex items-center justify-center">
-      <img :src="getImageUrl(watch.image)" class="w-full h-full object-contain" />
+      <img :src="getImageUrl(watch.images?.[0])" class="w-full h-full object-contain" />
     </div>
 
     <div class="flex justify-between items-center px-4 mt-[clamp(10px,1.2vw,16px)]">

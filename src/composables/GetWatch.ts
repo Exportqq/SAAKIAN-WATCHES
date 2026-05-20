@@ -3,10 +3,14 @@ import { useApi } from './useApi';
 
 export interface Watch {
   id: string;
-  image: string;
+  custom_id: string; // 👈 ДОБАВЬ ЭТО
+
+  images: string[]; // 👈 ВАЖНО
+
   title: string;
   price: number;
   description: string;
+
   bracelet: string;
   mechanism: string;
   case_material: string;
@@ -18,11 +22,14 @@ export interface Watch {
   gender: string;
   brand_country: string;
   brand: string;
+
   status: string;
-  reviews: any[];
+
   in_stock: boolean;
+
   bonus_percent: number;
   discount_percent: number;
+
   rating: number;
   reviews_count: number;
 }

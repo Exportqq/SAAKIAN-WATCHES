@@ -16,6 +16,6 @@ onMounted(() => {
   <div v-if="watchesLoading">Loading...</div>
 
   <div v-else class="grid grid-cols-4 max-md:grid-cols-2 gap-x-[5px] gap-y-[16px] w-full mt-[20px] max-md:mt-[10px]">
-    <WatchCard v-for="watch in watches" :key="watch.id" :watch="watch" />
+    <WatchCard v-for="watch in watches" :key="watch.custom_id" :watch="watch" />
   </div>
 </template>
