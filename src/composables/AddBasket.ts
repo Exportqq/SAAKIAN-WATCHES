@@ -9,27 +9,22 @@ export interface BasketItem {
 }
 
 export const basket = ref<BasketItem[]>([]);
-export const basketLoading = ref(false);
 export const basketError = ref<string | null>(null);
 
 export const useBasket = () => {
   const { request } = useApi();
 
   const getBasket = async () => {
-    basketLoading.value = true;
-
     try {
       const res = await request<BasketItem[]>('/cart');
       basket.value = res;
       return res;
-    } finally {
-      basketLoading.value = false;
+    } catch (e: any) {
+      basketError.value = e.message;
     }
   };
 
   const addToBasket = async (custom_id: string, quantity: number = 1) => {
-    basketLoading.value = true;
-
     try {
       const res = await request('/cart/add', {
         method: 'POST',
@@ -42,16 +37,13 @@ export const useBasket = () => {
         }),
       });
 
-      await getBasket();
       return res;
-    } finally {
-      basketLoading.value = false;
+    } catch (e: any) {
+      basketError.value = e.message;
     }
   };
 
   const removeFromBasket = async (custom_id: string) => {
-    basketLoading.value = true;
-
     try {
       const res = await request(`/cart/remove/${custom_id}`, {
         method: 'DELETE',
@@ -60,14 +52,13 @@ export const useBasket = () => {
       basket.value = basket.value.filter((item) => item.watch.custom_id !== custom_id);
 
       return res;
-    } finally {
-      basketLoading.value = false;
+    } catch (e: any) {
+      basketError.value = e.message;
     }
   };
 
   return {
     basket,
-    basketLoading,
     basketError,
 
     getBasket,
