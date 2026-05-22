@@ -3,9 +3,9 @@ import { useApi } from './useApi';
 
 export interface Watch {
   id: string;
-  custom_id: string; // 👈 ДОБАВЬ ЭТО
+  custom_id: string; 
 
-  images: string[]; // 👈 ВАЖНО
+  images: string[]; 
 
   title: string;
   price: number;

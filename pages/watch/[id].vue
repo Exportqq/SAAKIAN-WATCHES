@@ -3,7 +3,7 @@
 
   <div v-if="watchesLoading" class="p-10">Loading...</div>
 
-  <div v-else-if="currentWatch" class="max-w-[1400px] mx-auto px-4 py-10">
+  <div v-else-if="currentWatch" class="max-w-[1400px] mx-auto px-4 py-10 pb-[120px]">
     <div class="grid grid-cols-2 max-md:grid-cols-1 gap-[40px]">
       <div class="space-y-4">
         <div class="bg-[#F0EEED] w-full aspect-square flex items-center justify-center rounded-[20px] overflow-hidden">
@@ -47,7 +47,8 @@
           <p><b>Пол:</b> {{ currentWatch.gender }}</p>
         </div>
 
-        <div class="mt-[40px] flex items-center gap-4">
+        <!-- Desktop -->
+        <div class="mt-[40px] hidden md:flex items-center gap-4">
           <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center gap-[38px]">
             <button
               class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
@@ -69,11 +70,40 @@
           </div>
 
           <ButtonUI
-            :text="'ДОБАВИТЬ В КОРЗИНУ'"
+            :text="'В КОРЗИНУ'"
             :max-width="true"
             :rounded="62"
-            :paddingX="58"
+            :paddingX="8"
             :paddingY="10"
+            @click="addCurrentWatchToBasket"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#E5E5E5] px-4 py-3 z-50">
+      <div class="flex items-center gap-3">
+        <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center justify-between min-w-[130px]">
+          <button class="w-[24px] h-[24px] flex items-center justify-center" @click="decreaseQuantity">
+            <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain" />
+          </button>
+
+          <span class="text-[20px] font-semibold min-w-[20px] text-center">
+            {{ quantity }}
+          </span>
+
+          <button class="w-[24px] h-[24px] flex items-center justify-center" @click="quantity++">
+            <img src="/icons/plus.svg" alt="plus" class="w-full h-full object-contain" />
+          </button>
+        </div>
+
+        <div class="flex-1">
+          <ButtonUI
+            :text="'В КОРЗИНУ'"
+            :max-width="true"
+            :rounded="62"
+            :paddingX="20"
+            :paddingY="13.4"
             @click="addCurrentWatchToBasket"
           />
         </div>
@@ -82,6 +112,14 @@
   </div>
 
   <div v-else class="p-10">Not found</div>
+
+  <PopupUI
+    :message="popupMessage"
+    :type="popupType"
+    :show="popupVisible"
+    :duration="2500"
+    @close="popupVisible = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -90,19 +128,33 @@ import { useRoute } from 'vue-router';
 
 import { useBasket } from '~/src/composables/AddBasket';
 import { useWatch } from '~/src/composables/GetWatch';
+import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
 import ButtonUI from '~/src/UI/ButtonUI.vue';
+import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
 const route = useRoute();
 
 const { currentWatch, getWatchById, watchesLoading } = useWatch();
 const { addToBasket } = useBasket();
+const { show, hide } = useGlobalLoader();
 
 const API_URL = 'https://watches-api-c9i5.onrender.com';
 
 const activeImage = ref(0);
 const quantity = ref(1);
+
+// popup state
+const popupVisible = ref(false);
+const popupMessage = ref('');
+const popupType = ref<'success' | 'error'>('success');
+
+const showPopup = (message: string, type: 'success' | 'error' = 'success') => {
+  popupMessage.value = message;
+  popupType.value = type;
+  popupVisible.value = true;
+};
 
 const decreaseQuantity = () => {
   if (quantity.value > 1) quantity.value--;
@@ -118,16 +170,25 @@ const addCurrentWatchToBasket = async () => {
   if (!currentWatch.value) return;
 
   try {
+    show();
+
     await addToBasket(currentWatch.value.custom_id, quantity.value);
 
-    alert('Товар добавлен в корзину');
+    showPopup('Товар добавлен в корзину', 'success');
   } catch (e) {
     console.error(e);
-    alert('Ошибка добавления');
+    showPopup('Ошибка добавления в корзину', 'error');
+  } finally {
+    hide();
   }
 };
 
-onMounted(() => {
-  getWatchById(route.params.id as string);
+onMounted(async () => {
+  try {
+    show();
+    await getWatchById(route.params.id as string);
+  } finally {
+    hide();
+  }
 });
 </script>
