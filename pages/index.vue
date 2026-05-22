@@ -1,9 +1,9 @@
 <template>
-  <Home />
+  <Auth />
 </template>
 
 <script setup>
-import Home from './Home/Home.vue';
+import Auth from './Auth/Auth.vue';
 </script>
 
 <style scoped></style>

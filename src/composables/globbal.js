@@ -9,6 +9,8 @@ export const globalRouting = () => {
 
   const isBasketPVZ = computed(() => route.path === '/Basket/PickUpDelivery');
 
+  const isCatalogActive = computed(() => route.path === '/Catalog/Catalog');
+
   const redirectMain = () => {
     router.push('/');
   };
@@ -17,47 +19,37 @@ export const globalRouting = () => {
     router.push('/Basket/PickUpDelivery');
   };
 
-  const redirectChats = () => {
-    router.push('/Chats/Chats');
+  const redirectBasket = () => {
+    router.push('/Basket/Basket');
   };
 
-  const redirectProgress = () => {
-    router.push('/Progress/Progress');
+  const redirectCatalog = () => {
+    router.push('/Catalog/Catalog');
   };
 
-  const redirectDiary = () => {
+  const redirectProfile = () => {
     router.push('/Profile/Profile');
   };
 
-  const redirectRegister = () => {
-    router.push('/Authentication/Register/Register');
-  };
-
-  const redirectAuthentication = () => {
-    router.push('/Authentication/Authentication');
-  };
-
   const redirectAuth = () => {
-    router.push('/Authentication/Auth/Auth');
+    router.push('/Auth/Auth');
   };
 
-  const redirectForgotPassword = () => {
-    router.push('/Authentication/Forgot/ForgotPassword/ForgotPassword');
-  };
-
-  const redirectFriends = () => {
-    router.push('/Profile/components/Frends');
-  };
-
-  const redirectSettings = () => {
-    router.push('/Profile/components/Settings/Setting');
+  const redirectHome = () => {
+    router.push('/Home/Home');
   };
 
   return {
     isMainActive,
     isBasketPVZ,
+    isCatalogActive,
 
     redirectMain,
     redirectDelivery,
+    redirectCatalog,
+    redirectProfile,
+    redirectAuth,
+    redirectBasket,
+    redirectHome,
   };
 };

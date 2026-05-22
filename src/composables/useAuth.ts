@@ -1,128 +1,133 @@
-import { ref } from "vue";
-import { useApi } from "./useApi";
+import { ref } from 'vue';
+import { useApi } from './useApi';
 
-interface LoginPayload {
-  email: string;
-  password: string;
+interface IUser {
+  id: string;
+  username: string;
 }
 
-interface LoginResponse {
-  token?: string;
-  accessToken?: string;
-}
-
-export const token = ref<string | null>(null);
-export const resetEmail = ref<string | null>(null);
-
-if (import.meta.client) {
-  token.value = localStorage.getItem("token");
-  resetEmail.value = localStorage.getItem("reset_email");
+interface AuthResponse {
+  user: IUser;
+  access_token: string;
+  token_type: string;
 }
 
 export const useAuth = () => {
   const { request } = useApi();
 
-  const register = (data: {
-    nickname: string;
-    email: string;
-    password: string;
-    gender: "male" | "female";
-  }) =>
-    request("/api/auth/register", {
-      method: "POST",
-      body: data,
-    });
+  const user = ref<IUser | null>(null);
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
-  const login = async (data: LoginPayload) => {
-    const response = (await request<LoginResponse>("/api/auth/login", {
-      method: "POST",
-      body: data,
-    })) as LoginResponse;
-
-    const jwt = response.token ?? response.accessToken;
-
-    if (!jwt) throw new Error("Сервер не вернул токен!");
-
-    token.value = jwt;
-
-    if (import.meta.client) {
-      localStorage.setItem("token", jwt);
-    }
-
-    return jwt;
-  };
-
-  const logout = async () => {
+  const register = async (username: string, password: string) => {
     try {
-      if (token.value) {
-        await request("/auth/logout", { method: "POST" });
+      loading.value = true;
+      error.value = null;
+
+      const res = await request<AuthResponse>('/auth/register', {
+        method: 'POST',
+        body: {
+          username,
+          password,
+        },
+      });
+
+      user.value = res.user;
+
+      if (import.meta.client) {
+        localStorage.setItem('token', res.access_token);
+
+        localStorage.setItem('user', JSON.stringify(res.user));
       }
-    } catch (error: any) {
-      if (error?.status !== 401) {
-        console.error("Ошибка при логауте:", error);
-      }
+
+      return res.user;
+    } catch (e: any) {
+      error.value = e?.data?.detail || 'Register failed';
+
+      return null;
     } finally {
-      token.value = null;
-      if (import.meta.client) localStorage.removeItem("token");
+      loading.value = false;
     }
   };
 
-  const sendResetCode = async (email: string) => {
-    resetEmail.value = email;
+  const login = async (username: string, password: string) => {
+    try {
+      loading.value = true;
+      error.value = null;
+
+      const res = await request<AuthResponse>('/auth/login', {
+        method: 'POST',
+        body: {
+          username,
+          password,
+        },
+      });
+
+      user.value = res.user;
+
+      if (import.meta.client) {
+        localStorage.setItem('token', res.access_token);
+
+        localStorage.setItem('user', JSON.stringify(res.user));
+      }
+
+      return res.user;
+    } catch (e: any) {
+      error.value = e?.data?.detail || 'Login failed';
+
+      return null;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const getMe = async () => {
+    try {
+      const token = import.meta.client ? localStorage.getItem('token') : null;
+
+      if (!token) return null;
+
+      const res = await request<IUser>('/auth/me');
+
+      user.value = res;
+
+      return res;
+    } catch (e: any) {
+      error.value = e?.data?.detail || 'Failed to fetch user';
+
+      return null;
+    }
+  };
+
+  const init = () => {
+    if (import.meta.client) {
+      const u = localStorage.getItem('user');
+
+      if (u) {
+        user.value = JSON.parse(u);
+      }
+    }
+  };
+
+  const logout = () => {
+    user.value = null;
 
     if (import.meta.client) {
-      localStorage.setItem("reset_email", email);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
-
-    return request<{ message: string }>("/auth/password/forgot", {
-      method: "POST",
-      body: { email },
-    });
   };
-
-  const verifyResetCode = async (code: string) => {
-    if (!resetEmail.value) throw new Error("Email не найден");
-
-    return request("/auth/password/verify", {
-      method: "POST",
-      body: {
-        email: resetEmail.value,
-        code,
-      },
-    });
-  };
-
-  const setNewPassword = async (code: string, newPassword: string) => {
-    if (!resetEmail.value) throw new Error("Email не найден");
-
-    return request("/auth/password/reset", {
-      method: "POST",
-      body: {
-        email: resetEmail.value,
-        code,
-        newPassword,
-      },
-    });
-  };
-
-  const startEmailChange = async () => {
-    return request<{ message: string }>("/users/me/email/change/start", {
-      method: "POST",
-    });
-  };
-
-  const isAuthenticated = () => !!token.value;
 
   return {
+    user,
+    loading,
+    error,
+
     register,
     login,
+    getMe,
+
+    init,
     logout,
-    isAuthenticated,
-    sendResetCode,
-    verifyResetCode,
-    setNewPassword,
-    startEmailChange,
-    token,
-    resetEmail,
   };
 };

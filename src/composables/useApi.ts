@@ -1,6 +1,4 @@
 export const useApi = () => {
-  const config = useRuntimeConfig();
-
   const request = async <T>(
     url: string,
     options: {
@@ -9,12 +7,22 @@ export const useApi = () => {
       headers?: HeadersInit;
     } = {},
   ): Promise<T> => {
+    const token = import.meta.client ? localStorage.getItem('token') : null;
+
     return $fetch<T>(url, {
-      baseURL: 'https://watches-api-c9i5.onrender.com/',
+      baseURL: 'https://watches-api-c9i5.onrender.com',
       method: options.method ?? 'GET',
       body: options.body,
+
       headers: {
         'Content-Type': 'application/json',
+
+        ...(token
+          ? {
+              Authorization: `Bearer ${token}`,
+            }
+          : {}),
+
         ...options.headers,
       },
     });

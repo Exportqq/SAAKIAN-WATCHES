@@ -27,11 +27,11 @@
     <!-- desktop nav -->
     <div v-if="!isMobile" class="flex gap-[68px] items-center">
       <div class="flex gap-[35px]">
-        <a class="relative text-[16px] cursor-pointer">КАТАЛОГ</a>
+        <a @click="goCatalog()" class="relative text-[16px] cursor-pointer">КАТАЛОГ</a>
         <a class="relative text-[16px] cursor-pointer">ОПТОВАЯ ПОКУПКА</a>
       </div>
 
-      <img class="w-[184px] h-[46px] cursor-pointer" src="/logo.svg" />
+      <img @click="goHome()" class="w-[184px] h-[46px] cursor-pointer" src="/logo.svg" />
 
       <div class="flex gap-[35px]">
         <a class="relative text-[16px] cursor-pointer">РАСПРОДАЖА</a>
@@ -65,7 +65,7 @@
       class="fixed top-0 left-0 h-full w-full bg-white z-40 flex flex-col items-center justify-center gap-6 transform transition-all duration-500 ease-out"
       :class="isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'"
     >
-      <a class="text-lg">КАТАЛОГ</a>
+      <a @click="goCatalog()" class="text-lg">КАТАЛОГ</a>
       <a class="text-lg">ОПТОВАЯ ПОКУПКА</a>
       <a class="text-lg">РАСПРОДАЖА</a>
       <a class="text-lg">ПРОФИЛЬ</a>
@@ -78,6 +78,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useBasket } from '~/src/composables/AddBasket';
+import { globalRouting } from '~/src/composables/globbal';
 import useWindowSizes from '~/src/composables/window_size';
 
 const router = useRouter();
@@ -86,13 +87,22 @@ const { isMobile } = useWindowSizes();
 const isMenuOpen = ref(false);
 
 const { basket, getBasket } = useBasket();
+const { redirectCatalog, redirectBasket, redirectHome } = globalRouting();
 
 const basketCount = computed(() => {
   return basket.value.reduce((sum, item) => sum + item.quantity, 0);
 });
 
 const goToBasket = () => {
-  router.push('/Basket/Basket');
+  redirectBasket();
+};
+
+const goCatalog = () => {
+  redirectCatalog();
+};
+
+const goHome = () => {
+  redirectHome();
 };
 
 onMounted(() => {
