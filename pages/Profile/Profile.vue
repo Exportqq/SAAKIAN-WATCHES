@@ -7,7 +7,6 @@
     >
       <!-- TOP BANNER -->
       <div class="h-[140px] bg-gradient-to-r from-black via-[#1A1A1A] to-[#333] relative">
-        <!-- AVATAR -->
         <div
           class="absolute -bottom-[42px] left-1/2 -translate-x-1/2 w-[84px] h-[84px] rounded-full bg-white border-[5px] border-white shadow-md flex items-center justify-center"
         >
@@ -17,26 +16,39 @@
         </div>
       </div>
 
-      <!-- CONTENT -->
       <div class="pt-[58px] px-[30px] pb-[30px] text-center">
-        <!-- USERNAME -->
         <h1 class="text-[30px] font-extrabold text-black leading-none">
           {{ user?.username || 'Пользователь' }}
         </h1>
 
         <p class="text-[14px] text-[#777] mt-[10px]">Добро пожаловать в ваш профиль</p>
 
+        <!-- BONUS CARD -->
+        <div
+          class="mt-[24px] rounded-[24px] p-[20px] text-left text-white bg-gradient-to-r from-black via-[#1a1a1a] to-[#2a2a2a] shadow-lg"
+        >
+          <p class="text-[13px] text-white/70">Бонусная карта</p>
+
+          <div class="mt-[6px] flex items-end justify-between">
+            <p class="text-[28px] font-extrabold">
+              {{ bonus?.balance?.toFixed(0) || 0 }}
+            </p>
+
+            <span class="text-[13px] text-white/60">баллов</span>
+          </div>
+
+          <p class="text-[12px] text-white/50 mt-[10px]">Используйте бонусы при оплате заказов</p>
+        </div>
+
         <!-- INFO CARDS -->
         <div class="grid grid-cols-2 gap-[14px] mt-[30px]">
           <div class="bg-[#F7F7F7] rounded-[22px] p-[18px] text-left border border-[#EFEFEF]">
             <p class="text-[13px] text-[#888] mb-[6px]">Статус</p>
-
             <p class="text-[16px] font-bold text-black">Активен</p>
           </div>
 
           <div class="bg-[#F7F7F7] rounded-[22px] p-[18px] text-left border border-[#EFEFEF]">
             <p class="text-[13px] text-[#888] mb-[6px]">Аккаунт</p>
-
             <p class="text-[16px] font-bold text-black">Пользователь</p>
           </div>
         </div>
@@ -57,6 +69,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal';
 import { useAuth } from '~/src/composables/useAuth';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
@@ -71,6 +84,10 @@ const { redirectAuth } = globalRouting();
 
 const user = ref<any>(null);
 
+const { basket } = useBasket();
+
+const bonus = ref<any>(null);
+
 const logoutHandler = () => {
   logout();
   redirectAuth();
@@ -81,6 +98,10 @@ onMounted(async () => {
     show();
 
     user.value = await getMe();
+
+    bonus.value = {
+      balance: 0,
+    };
   } finally {
     hide();
   }

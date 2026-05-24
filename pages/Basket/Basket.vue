@@ -41,7 +41,6 @@
             </div>
 
             <button
-              v-if="item.quantity === 1"
               class="bg-black text-white px-6 py-3 rounded-full font-semibold hover:opacity-80 transition-all"
               @click="remove(item.watch.custom_id)"
             >
@@ -63,7 +62,7 @@
       </div>
 
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex items-center justify-between md:hidden z-50">
-        <span class="text-[22px] font-extrabold"> {{ totalPrice.toLocaleString() }} ₽ </span>
+        <span class="text-[22px] font-extrabold">{{ totalPrice.toLocaleString() }} ₽</span>
 
         <button class="bg-black text-white px-6 py-3 rounded-full font-semibold" @click="goNext">Далее</button>
       </div>
@@ -85,9 +84,9 @@
 import { computed, onMounted, ref } from 'vue';
 
 import { useBasket } from '~/src/composables/AddBasket';
+import { globalRouting } from '~/src/composables/globbal';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
-import { globalRouting } from '~/src/composables/globbal';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
@@ -113,14 +112,16 @@ const normalizeImage = (path?: string) => {
   return `${API_URL}${path}`;
 };
 
+const refresh = async () => {
+  await getBasket();
+};
+
 const increase = async (item: any) => {
   show();
   try {
     await addToBasket(item.watch.custom_id, 1);
-    await getBasket();
+    await refresh();
     showPopup('Количество увеличено', 'success');
-  } catch {
-    showPopup('Ошибка обновления', 'error');
   } finally {
     hide();
   }
@@ -129,17 +130,15 @@ const increase = async (item: any) => {
 const decrease = async (item: any) => {
   show();
   try {
-    if (item.quantity > 2) {
-      await removeFromBasket(item.watch.custom_id);
-      await addToBasket(item.watch.custom_id, item.quantity - 1);
+    if (item.quantity > 1) {
+      await addToBasket(item.watch.custom_id, -1);
+      await refresh();
       showPopup('Количество уменьшено', 'success');
     } else {
       await removeFromBasket(item.watch.custom_id);
+      await refresh();
       showPopup('Товар удалён', 'warning');
     }
-    await getBasket();
-  } catch {
-    showPopup('Ошибка обновления', 'error');
   } finally {
     hide();
   }
@@ -149,10 +148,8 @@ const remove = async (custom_id: string) => {
   show();
   try {
     await removeFromBasket(custom_id);
-    await getBasket();
+    await refresh();
     showPopup('Товар удалён', 'warning');
-  } catch {
-    showPopup('Ошибка удаления', 'error');
   } finally {
     hide();
   }
@@ -163,16 +160,13 @@ const totalPrice = computed(() => {
 });
 
 const goNext = () => {
-  if (redirectDelivery) {
-    redirectDelivery();
-  }
+  redirectDelivery?.();
 };
 
 onMounted(async () => {
   show();
   try {
     await getBasket();
-    showPopup('Корзина загружена', 'success');
   } finally {
     hide();
   }

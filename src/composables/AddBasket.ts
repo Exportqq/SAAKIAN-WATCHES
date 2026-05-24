@@ -37,6 +37,8 @@ export const useBasket = () => {
         }),
       });
 
+      await getBasket();
+
       return res;
     } catch (e: any) {
       basketError.value = e.message;
@@ -49,7 +51,7 @@ export const useBasket = () => {
         method: 'DELETE',
       });
 
-      basket.value = basket.value.filter((item) => item.watch.custom_id !== custom_id);
+      await getBasket();
 
       return res;
     } catch (e: any) {
@@ -60,7 +62,6 @@ export const useBasket = () => {
   return {
     basket,
     basketError,
-
     getBasket,
     addToBasket,
     removeFromBasket,
