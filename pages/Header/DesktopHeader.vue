@@ -27,21 +27,21 @@
     <!-- desktop nav -->
     <div v-if="!isMobile" class="flex gap-[68px] items-center">
       <div class="flex gap-[35px]">
+        <a @click="goHome()" class="relative text-[16px] cursor-pointer">ГЛАВНАЯ</a>
         <a @click="goCatalog()" class="relative text-[16px] cursor-pointer">КАТАЛОГ</a>
-        <a class="relative text-[16px] cursor-pointer">ОПТОВАЯ ПОКУПКА</a>
       </div>
 
       <img @click="goHome()" class="w-[184px] h-[46px] cursor-pointer" src="/logo.svg" />
 
       <div class="flex gap-[35px]">
         <a class="relative text-[16px] cursor-pointer">РАСПРОДАЖА</a>
-        <a class="relative text-[16px] cursor-pointer">ПРОФИЛЬ</a>
+        <a @click="goProfile()" class="relative text-[16px] cursor-pointer">ПРОФИЛЬ</a>
       </div>
     </div>
 
     <!-- mobile logo -->
     <div v-else class="w-full flex items-center justify-center">
-      <img class="w-[140px] h-[36px]" src="/logo.svg" />
+      <img @click="goHome()" class="w-[140px] h-[36px]" src="/logo.svg" />
     </div>
 
     <!-- 🛒 CART ICON -->
@@ -65,10 +65,10 @@
       class="fixed top-0 left-0 h-full w-full bg-white z-40 flex flex-col items-center justify-center gap-6 transform transition-all duration-500 ease-out"
       :class="isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'"
     >
+      <a @click="goHome()" class="text-lg">ГЛАВНАЯ</a>
       <a @click="goCatalog()" class="text-lg">КАТАЛОГ</a>
-      <a class="text-lg">ОПТОВАЯ ПОКУПКА</a>
       <a class="text-lg">РАСПРОДАЖА</a>
-      <a class="text-lg">ПРОФИЛЬ</a>
+      <a @click="goProfile()" class="text-lg">ПРОФИЛЬ</a>
     </div>
   </div>
 </template>
@@ -87,7 +87,7 @@ const { isMobile } = useWindowSizes();
 const isMenuOpen = ref(false);
 
 const { basket, getBasket } = useBasket();
-const { redirectCatalog, redirectBasket, redirectHome } = globalRouting();
+const { redirectCatalog, redirectBasket, redirectHome, redirectProfile } = globalRouting();
 
 const basketCount = computed(() => {
   return basket.value.reduce((sum, item) => sum + item.quantity, 0);
@@ -103,6 +103,10 @@ const goCatalog = () => {
 
 const goHome = () => {
   redirectHome();
+};
+
+const goProfile = () => {
+  redirectProfile();
 };
 
 onMounted(() => {

@@ -1,82 +1,91 @@
 <template>
   <DesktopHeader />
 
-  <div class="px-4 flex justify-center mt-[40px]">
-    <div class="w-full border rounded-[24px] max-w-[1400px] p-6 space-y-5">
-      <div class="text-[24px] font-bold">Способ доставки</div>
+  <div class="px-4 flex justify-center mt-[40px] pb-[100px]">
+    <div
+      class="w-full max-w-[900px] bg-white border border-[#ECECEC] rounded-[28px] p-8 space-y-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)]"
+    >
+      <div>
+        <div class="text-[28px] font-extrabold">Способ доставки</div>
+        <div class="text-[13px] text-[#777] mt-1">Укажите данные для доставки заказа</div>
+      </div>
 
       <div class="flex gap-3">
         <button
-          class="px-5 py-3 rounded-full font-semibold transition-all"
-          :class="deliveryType === 'cdek' ? 'bg-black text-white' : 'bg-gray-200'"
+          class="px-6 py-3 rounded-full font-semibold transition-all"
+          :class="deliveryType === 'cdek' ? 'bg-black text-white' : 'bg-[#F3F3F3] text-black'"
           @click="deliveryType = 'cdek'"
         >
           СДЭК
         </button>
 
         <button
-          class="px-5 py-3 rounded-full font-semibold transition-all"
-          :class="deliveryType === 'yandex' ? 'bg-black text-white' : 'bg-gray-200'"
+          class="px-6 py-3 rounded-full font-semibold transition-all"
+          :class="deliveryType === 'yandex' ? 'bg-black text-white' : 'bg-[#F3F3F3] text-black'"
           @click="deliveryType = 'yandex'"
         >
           Яндекс Маркет
         </button>
       </div>
 
-      <div>
-        <label class="text-[14px] text-gray-500">Адрес пункта выдачи</label>
-        <input
-          v-model="address"
-          type="text"
-          class="w-full mt-1 px-4 py-3 border rounded-[14px]"
-          placeholder="Введите адрес ПВЗ"
-        />
+      <div class="space-y-5">
+        <div>
+          <label class="text-[13px] text-gray-500">Адрес пункта выдачи</label>
+          <input
+            v-model="address"
+            type="text"
+            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] focus:border-black outline-none transition"
+            placeholder="Введите адрес ПВЗ"
+          />
+        </div>
+
+        <div>
+          <label class="text-[13px] text-gray-500">Телефон</label>
+          <input
+            v-model="phone"
+            @input="formatPhone"
+            type="text"
+            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] focus:border-black outline-none transition"
+            placeholder="+7 (___) ___ __-__"
+          />
+        </div>
+
+        <div>
+          <label class="text-[13px] text-gray-500">ФИО</label>
+          <input
+            v-model="fio"
+            type="text"
+            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] focus:border-black outline-none transition"
+            placeholder="Иванов Иван Иванович"
+          />
+        </div>
+
+        <div>
+          <label class="text-[13px] text-gray-500">Комментарий (необязательно)</label>
+          <textarea
+            v-model="comment"
+            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] min-h-[110px] focus:border-black outline-none transition"
+            placeholder="Комментарий к заказу"
+          />
+        </div>
       </div>
 
-      <div>
-        <label class="text-[14px] text-gray-500">Телефон</label>
-        <input
-          v-model="phone"
-          @input="formatPhone"
-          type="text"
-          class="w-full mt-1 px-4 py-3 border rounded-[14px]"
-          placeholder="+7 (___) ___ __-__"
-        />
-      </div>
-
-      <div>
-        <label class="text-[14px] text-gray-500">ФИО</label>
-        <input
-          v-model="fio"
-          type="text"
-          class="w-full mt-1 px-4 py-3 border rounded-[14px]"
-          placeholder="Иванов Иван Иванович"
-        />
-      </div>
-
-      <div>
-        <label class="text-[14px] text-gray-500">Комментарий (необязательно)</label>
-        <textarea
-          v-model="comment"
-          class="w-full mt-1 px-4 py-3 border rounded-[14px] min-h-[100px]"
-          placeholder="Комментарий к заказу"
-        />
-      </div>
-
-      <button
-        class="w-full py-4 rounded-[14px] font-bold transition-all"
-        :class="canContinue ? 'bg-black text-white hover:opacity-80' : 'bg-gray-300 text-gray-600 cursor-not-allowed'"
+      <ButtonUI
+        :text="'Далее'"
+        :max-width="true"
+        :rounded="62"
+        :paddingX="8"
+        :paddingY="10"
         :disabled="!canContinue"
         @click="nextStep"
-      >
-        Далее
-      </button>
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import ButtonUI from '~/src/UI/ButtonUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
 const deliveryType = ref<'cdek' | 'yandex'>('cdek');
@@ -86,12 +95,7 @@ const fio = ref('');
 const comment = ref('');
 
 const canContinue = computed(() => {
-  return (
-    deliveryType.value &&
-    address.value.trim().length > 5 &&
-    phone.value.replace(/\D/g, '').length === 11 &&
-    fio.value.trim().length > 3
-  );
+  return address.value.trim().length > 5 && phone.value.replace(/\D/g, '').length === 11 && fio.value.trim().length > 3;
 });
 
 const formatPhone = () => {
