@@ -35,14 +35,14 @@
         />
 
         <input
-          v-model.number="minPrice"
+          v-model="minPrice"
           type="number"
           placeholder="Мин"
           class="h-[56px] rounded-[18px] bg-[#F7F7F7] px-5 border border-transparent focus:border-black transition outline-none"
         />
 
         <input
-          v-model.number="maxPrice"
+          v-model="maxPrice"
           type="number"
           placeholder="Макс"
           class="h-[56px] rounded-[18px] bg-[#F7F7F7] px-5 border border-transparent focus:border-black transition outline-none"
@@ -72,8 +72,8 @@
 
         <div class="mt-6 space-y-4">
           <input v-model="search" placeholder="Поиск" class="input" />
-          <input v-model.number="minPrice" type="number" placeholder="Мин" class="input" />
-          <input v-model.number="maxPrice" type="number" placeholder="Макс" class="input" />
+          <input v-model="minPrice" type="number" placeholder="Мин" class="input" />
+          <input v-model="maxPrice" type="number" placeholder="Макс" class="input" />
         </div>
 
         <div class="absolute bottom-0 left-0 right-0 p-5 border-t">
@@ -113,9 +113,9 @@ onMounted(() => {
 
 const applyFilters = async () => {
   await getWatches({
-    search: search.value,
-    minPrice: minPrice.value,
-    maxPrice: maxPrice.value,
+    search: search.value || undefined,
+    minPrice: minPrice.value || undefined,
+    maxPrice: maxPrice.value || undefined,
   });
 };
 

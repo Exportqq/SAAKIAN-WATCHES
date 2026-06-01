@@ -1,3 +1,4 @@
+// composables/useAuth.ts
 import { ref } from 'vue';
 import { useApi } from './useApi';
 
@@ -7,9 +8,8 @@ interface IUser {
 }
 
 interface AuthResponse {
+  token: string;
   user: IUser;
-  access_token: string;
-  token_type: string;
 }
 
 export const useAuth = () => {
@@ -24,7 +24,8 @@ export const useAuth = () => {
       loading.value = true;
       error.value = null;
 
-      const res = await request<AuthResponse>('/auth/register', {
+      // Регистрируем пользователя
+      await request<{ id: string }>('/auth/register', {
         method: 'POST',
         body: {
           username,
@@ -32,18 +33,10 @@ export const useAuth = () => {
         },
       });
 
-      user.value = res.user;
-
-      if (import.meta.client) {
-        localStorage.setItem('token', res.access_token);
-
-        localStorage.setItem('user', JSON.stringify(res.user));
-      }
-
-      return res.user;
+      // После успешной регистрации автоматически логинимся
+      return await login(username, password);
     } catch (e: any) {
       error.value = e?.data?.detail || 'Register failed';
-
       return null;
     } finally {
       loading.value = false;
@@ -66,15 +59,13 @@ export const useAuth = () => {
       user.value = res.user;
 
       if (import.meta.client) {
-        localStorage.setItem('token', res.access_token);
-
+        localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
       }
 
       return res.user;
     } catch (e: any) {
       error.value = e?.data?.detail || 'Login failed';
-
       return null;
     } finally {
       loading.value = false;
@@ -87,14 +78,19 @@ export const useAuth = () => {
 
       if (!token) return null;
 
-      const res = await request<IUser>('/auth/me');
+      const res = await request<{ id: string }>('/auth/me');
 
-      user.value = res;
+      // Бэкенд возвращает только ID, поэтому берем остальные данные из localStorage
+      if (import.meta.client) {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          user.value = JSON.parse(savedUser);
+        }
+      }
 
-      return res;
+      return user.value;
     } catch (e: any) {
       error.value = e?.data?.detail || 'Failed to fetch user';
-
       return null;
     }
   };
@@ -102,7 +98,6 @@ export const useAuth = () => {
   const init = () => {
     if (import.meta.client) {
       const u = localStorage.getItem('user');
-
       if (u) {
         user.value = JSON.parse(u);
       }
@@ -122,11 +117,9 @@ export const useAuth = () => {
     user,
     loading,
     error,
-
     register,
     login,
     getMe,
-
     init,
     logout,
   };

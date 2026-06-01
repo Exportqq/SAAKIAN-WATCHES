@@ -2,7 +2,7 @@
   <div class="bg-[#F2F0F1] p-[100px] max-md:px-[10px] max-md:py-[40px]">
     <div class="flex max-md:gap-0 gap-[26px] flex-col">
       <h1
-        class="max-md:w-[339px] max-md:h-[84px] h-[154px] w-[667px] text-[#000000] font-extrabold max-md:text-[32px] text-[72px] max-md:leading-[28px] leading-[52px]"
+        class="max-md:w-[339px] max-md:h-[84px] h-[154px] w-[679px] text-[#000000] font-extrabold max-md:text-[32px] text-[72px] max-md:leading-[28px] leading-[52px]"
       >
         Воплощение элегантности на вашем запястье
       </h1>
@@ -14,6 +14,7 @@
       </p>
 
       <ButtonUI
+        @click="redirectCatalog()"
         v-if="isDesktop"
         :text="'СДЕЛАТЬ ЗАКАЗ'"
         :max-width="false"
@@ -23,6 +24,7 @@
       />
 
       <ButtonUI
+        @click="redirectCatalog()"
         class="mt-[25px]"
         v-if="isMobile"
         :text="'СДЕЛАТЬ ЗАКАЗ'"
@@ -67,10 +69,13 @@
 </template>
 
 <script lang="ts" setup>
+import { globalRouting } from '~/src/composables/globbal';
 import useWindowSizes from '~/src/composables/window_size';
 import ButtonUI from '~/src/UI/ButtonUI.vue';
 
 const { isDesktop, isMobile } = useWindowSizes();
+const { redirectCatalog } = globalRouting();
+
 </script>
 
 <style scoped></style>
