@@ -10,6 +10,7 @@ interface IUser {
 interface AuthResponse {
   token: string;
   user: IUser;
+  token: string; // было access_token
 }
 
 export const useAuth = () => {
@@ -19,21 +20,19 @@ export const useAuth = () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
+  const isClient = typeof window !== 'undefined';
+
   const register = async (username: string, password: string) => {
     try {
       loading.value = true;
       error.value = null;
 
-      // Регистрируем пользователя
-      await request<{ id: string }>('/auth/register', {
+      // register не возвращает токен — сразу логиним
+      await request('/auth/register', {
         method: 'POST',
-        body: {
-          username,
-          password,
-        },
+        body: { username, password },
       });
 
-      // После успешной регистрации автоматически логинимся
       return await login(username, password);
     } catch (e: any) {
       error.value = e?.data?.detail || 'Register failed';
@@ -50,16 +49,13 @@ export const useAuth = () => {
 
       const res = await request<AuthResponse>('/auth/login', {
         method: 'POST',
-        body: {
-          username,
-          password,
-        },
+        body: { username, password },
       });
 
       user.value = res.user;
 
-      if (import.meta.client) {
-        localStorage.setItem('token', res.token);
+      if (isClient) {
+        localStorage.setItem('token', res.token); // было res.access_token
         localStorage.setItem('user', JSON.stringify(res.user));
       }
 
@@ -74,7 +70,7 @@ export const useAuth = () => {
 
   const getMe = async () => {
     try {
-      const token = import.meta.client ? localStorage.getItem('token') : null;
+      const token = isClient ? localStorage.getItem('token') : null;
 
       if (!token) return null;
 
@@ -96,31 +92,20 @@ export const useAuth = () => {
   };
 
   const init = () => {
-    if (import.meta.client) {
+    if (isClient) {
       const u = localStorage.getItem('user');
-      if (u) {
-        user.value = JSON.parse(u);
-      }
+      if (u) user.value = JSON.parse(u);
     }
   };
 
   const logout = () => {
     user.value = null;
 
-    if (import.meta.client) {
+    if (isClient) {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
     }
   };
 
-  return {
-    user,
-    loading,
-    error,
-    register,
-    login,
-    getMe,
-    init,
-    logout,
-  };
+  return { user, loading, error, register, login, getMe, init, logout };
 };

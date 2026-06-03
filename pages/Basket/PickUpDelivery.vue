@@ -2,70 +2,105 @@
   <DesktopHeader />
 
   <div class="px-4 flex justify-center mt-[40px] pb-[100px]">
-    <div
-      class="w-full max-w-[900px] bg-white border border-[#ECECEC] rounded-[28px] p-8 space-y-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)]"
-    >
-      <div>
-        <div class="text-[28px] font-extrabold">Способ доставки</div>
-        <div class="text-[13px] text-[#777] mt-1">Укажите данные для доставки заказа</div>
+    <div class="w-full max-w-[560px] space-y-4">
+      <div class="mb-2">
+        <h1 class="text-[28px] font-extrabold">Доставка</h1>
+        <p class="text-[14px] text-[#888] mt-1">Укажите данные для получения заказа</p>
       </div>
 
-      <div class="flex gap-3">
+      <div class="border border-[#ECECEC] rounded-[20px] overflow-hidden bg-white">
         <button
-          class="px-6 py-3 rounded-full font-semibold transition-all"
-          :class="deliveryType === 'cdek' ? 'bg-black text-white' : 'bg-[#F3F3F3] text-black'"
+          class="w-full flex items-center gap-4 px-5 py-4 transition-all"
+          :class="
+            deliveryType === 'cdek'
+              ? 'bg-gradient-to-r from-[#00B33C]/20 to-[#00B33C]/5 text-[#007A29]'
+              : 'hover:bg-[#F9F9F9]'
+          "
           @click="deliveryType = 'cdek'"
         >
-          СДЭК
+          <div
+            class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+            :class="deliveryType === 'cdek' ? 'border-[#00B33C] bg-[#00B33C]' : 'border-[#CCC]'"
+          >
+            <div v-if="deliveryType === 'cdek'" class="w-2.5 h-2.5 rounded-full bg-white" />
+          </div>
+          <div class="text-left">
+            <p class="text-[15px] font-semibold">СДЭК</p>
+            <p class="text-[13px] mt-0.5" :class="deliveryType === 'cdek' ? 'text-[#00B33C]/60' : 'text-[#999]'">
+              Доставка до пункта выдачи
+            </p>
+          </div>
         </button>
 
+        <div class="border-t border-[#ECECEC]" />
+
         <button
-          class="px-6 py-3 rounded-full font-semibold transition-all"
-          :class="deliveryType === 'yandex' ? 'bg-black text-white' : 'bg-[#F3F3F3] text-black'"
+          class="w-full flex items-center gap-4 px-5 py-4 transition-all"
+          :class="
+            deliveryType === 'yandex'
+              ? 'bg-gradient-to-r from-[#FC3F1D]/15 to-[#FC3F1D]/5 text-[#C4300F]'
+              : 'hover:bg-[#F9F9F9]'
+          "
           @click="deliveryType = 'yandex'"
         >
-          Яндекс Маркет
+          <div
+            class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+            :class="deliveryType === 'yandex' ? 'border-[#FC3F1D] bg-[#FC3F1D]' : 'border-[#CCC]'"
+          >
+            <div v-if="deliveryType === 'yandex'" class="w-2.5 h-2.5 rounded-full bg-white" />
+          </div>
+          <div class="text-left">
+            <p class="text-[15px] font-semibold">Яндекс Маркет</p>
+            <p class="text-[13px] mt-0.5" :class="deliveryType === 'yandex' ? 'text-[#FC3F1D]/60' : 'text-[#999]'">
+              Доставка до пункта выдачи
+            </p>
+          </div>
         </button>
       </div>
 
-      <div class="space-y-5">
-        <div>
-          <label class="text-[13px] text-gray-500">Адрес пункта выдачи</label>
+      <div class="border border-[#ECECEC] rounded-[20px] overflow-hidden bg-white divide-y divide-[#F0F0F0]">
+        <div class="px-5 py-4">
+          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">Адрес ПВЗ</label>
           <input
             v-model="address"
             type="text"
-            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] focus:border-black outline-none transition"
-            placeholder="Введите адрес ПВЗ"
+            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC]"
+            placeholder="Введите адрес пункта выдачи"
           />
         </div>
 
-        <div>
-          <label class="text-[13px] text-gray-500">Телефон</label>
-          <input
-            v-model="phone"
-            @input="formatPhone"
-            type="text"
-            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] focus:border-black outline-none transition"
-            placeholder="+7 (___) ___ __-__"
-          />
-        </div>
-
-        <div>
-          <label class="text-[13px] text-gray-500">ФИО</label>
+        <div class="px-5 py-4">
+          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">ФИО</label>
           <input
             v-model="fio"
             type="text"
-            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] focus:border-black outline-none transition"
+            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC]"
             placeholder="Иванов Иван Иванович"
           />
         </div>
 
-        <div>
-          <label class="text-[13px] text-gray-500">Комментарий (необязательно)</label>
+        <div class="px-5 py-4">
+          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">Телефон</label>
+          <input
+            v-model="phone"
+            @input="formatPhone"
+            @keydown="handleKeydown"
+            type="tel"
+            inputmode="numeric"
+            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC]"
+            placeholder="+7 (___) ___ __-__"
+          />
+        </div>
+
+        <div class="px-5 py-4">
+          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide"
+            >Комментарий <span class="normal-case font-normal text-[#BBB]">— необязательно</span></label
+          >
           <textarea
             v-model="comment"
-            class="w-full mt-1 px-4 py-3 border border-[#EAEAEA] rounded-[14px] bg-[#FAFAFA] min-h-[110px] focus:border-black outline-none transition"
-            placeholder="Комментарий к заказу"
+            class="h-[150px] w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC] resize-none"
+            placeholder="Например: позвонить за час до доставки"
+            rows="2"
           />
         </div>
       </div>
@@ -84,7 +119,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
+import { globalRouting } from '~/src/composables/globbal.js';
+import { useOrder } from '~/src/composables/useOrder.js';
 import ButtonUI from '~/src/UI/ButtonUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
@@ -94,33 +131,80 @@ const phone = ref('');
 const fio = ref('');
 const comment = ref('');
 
+const { createOrder } = useOrder();
+const { redirectCatalog } = globalRouting();
+
 const canContinue = computed(() => {
   return address.value.trim().length > 5 && phone.value.replace(/\D/g, '').length === 11 && fio.value.trim().length > 3;
 });
 
-const formatPhone = () => {
-  let value = phone.value.replace(/\D/g, '');
-
-  if (value.startsWith('8')) value = '7' + value.slice(1);
-  if (!value.startsWith('7')) value = '7' + value;
-
-  let formatted = '+7 ';
-
-  if (value.length > 1) formatted += '(' + value.slice(1, 4);
-  if (value.length >= 4) formatted += ') ' + value.slice(4, 7);
-  if (value.length >= 7) formatted += ' ' + value.slice(7, 9);
-  if (value.length >= 9) formatted += '-' + value.slice(9, 11);
-
-  phone.value = formatted;
+const applyFormat = (digits: string): string => {
+  if (digits.length === 0) return '';
+  let formatted = '+7';
+  if (digits.length > 0) formatted += ' (' + digits.slice(0, 3);
+  if (digits.length >= 3) formatted += ') ' + digits.slice(3, 6);
+  if (digits.length >= 6) formatted += ' ' + digits.slice(6, 8);
+  if (digits.length >= 8) formatted += '-' + digits.slice(8, 10);
+  return formatted;
 };
 
-const nextStep = () => {
-  console.log({
-    deliveryType: deliveryType.value,
-    address: address.value,
-    phone: phone.value,
-    fio: fio.value,
-    comment: comment.value,
+const getDigits = (value: string): string => {
+  let digits = value.replace(/\D/g, '');
+  if (digits.startsWith('8')) digits = '7' + digits.slice(1);
+  if (digits.startsWith('7')) digits = digits.slice(1);
+  return digits.slice(0, 10);
+};
+
+const formatPhone = (e: Event) => {
+  const input = e.target as HTMLInputElement;
+  const cursorPos = input.selectionStart ?? 0;
+  const prevLength = phone.value.length;
+
+  const digits = getDigits(phone.value);
+  const formatted = applyFormat(digits);
+  phone.value = formatted;
+
+  nextTick(() => {
+    const diff = formatted.length - prevLength;
+    const newCursor = Math.max(0, cursorPos + diff);
+    input.setSelectionRange(newCursor, newCursor);
   });
+};
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key !== 'Backspace') return;
+
+  const input = e.target as HTMLInputElement;
+  const pos = input.selectionStart ?? 0;
+
+  if (pos === 0) return;
+
+  const prevChar = phone.value[pos - 1] as string | undefined;
+  if (!prevChar) return;
+
+  if (/[\s()\-+]/.test(prevChar)) {
+    e.preventDefault();
+    const digits = getDigits(phone.value).slice(0, -1);
+    phone.value = applyFormat(digits);
+
+    nextTick(() => {
+      input.setSelectionRange(phone.value.length, phone.value.length);
+    });
+  }
+};
+
+const nextStep = async () => {
+  try {
+    await createOrder({
+      delivery_type: deliveryType.value,
+      address: address.value,
+      phone: phone.value,
+      fio: fio.value,
+      comment: comment.value || undefined,
+    });
+    redirectCatalog?.();
+  } catch (e) {
+    console.log('Ошибка при создании заказа', 'error');
+  }
 };
 </script>

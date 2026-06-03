@@ -122,16 +122,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { globalRouting } from '~/src/composables/globbal';
+import { useAdminAuth } from '~/src/composables/useAdminAuth';
 import { useAuth } from '~/src/composables/useAuth';
 
-const router = useRouter();
-const { login, register, error, user, init } = useAuth();
+const { redirectProfile, redirectAdmin } = globalRouting(); // добавь redirectAdmin в globalRouting
+
+const { login, register, error } = useAuth();
+const { adminLogin, isAdmin } = useAdminAuth();
+const { show, hide } = useGlobalLoader();
 
 const username = ref('');
 const password = ref('');
-
 const isLogin = ref(true);
 const authLoading = ref(false);
 
@@ -157,18 +160,22 @@ const handleAuth = async () => {
 
   try {
     authLoading.value = true;
-    error.value = null;
-
-    let res;
+    show();
 
     if (isLogin.value) {
-      res = await login(username.value, password.value);
+      // сначала пробуем как админ
+      try {
+        await adminLogin(username.value, password.value);
+        redirectAdmin();
+        return;
+      } catch {
+        // не админ — пробуем как обычный пользователь
+        const res = await login(username.value, password.value);
+        if (res) redirectProfile();
+      }
     } else {
-      res = await register(username.value, password.value);
-    }
-
-    if (res) {
-      await router.push('/Profile/Profile');
+      const res = await register(username.value, password.value);
+      if (res) redirectProfile();
     }
   } catch (e: any) {
     console.error('Auth error:', e);

@@ -5,7 +5,6 @@
     <div
       class="w-full max-w-[560px] max-h-[calc(100vh-40px)] bg-white rounded-[32px] border border-[#E7E7E7] shadow-[0_10px_40px_rgba(0,0,0,0.04)] overflow-y-auto"
     >
-      <!-- TOP BANNER -->
       <div class="h-[140px] bg-gradient-to-r from-black via-[#1A1A1A] to-[#333] relative">
         <div
           class="absolute -bottom-[42px] left-1/2 -translate-x-1/2 w-[84px] h-[84px] rounded-full bg-white border-[5px] border-white shadow-md flex items-center justify-center"
@@ -23,7 +22,6 @@
 
         <p class="text-[14px] text-[#777] mt-[10px]">Добро пожаловать в ваш профиль</p>
 
-        <!-- BONUS CARD -->
         <div
           class="mt-[24px] rounded-[24px] p-[20px] text-left text-white bg-gradient-to-r from-black via-[#1a1a1a] to-[#2a2a2a] shadow-lg"
         >
@@ -40,20 +38,21 @@
           <p class="text-[12px] text-white/50 mt-[10px]">Используйте бонусы при оплате заказов</p>
         </div>
 
-        <!-- INFO CARDS -->
         <div class="grid grid-cols-2 gap-[14px] mt-[30px]">
           <div class="bg-[#F7F7F7] rounded-[22px] p-[18px] text-left border border-[#EFEFEF]">
             <p class="text-[13px] text-[#888] mb-[6px]">Статус</p>
             <p class="text-[16px] font-bold text-black">Активен</p>
           </div>
 
-          <div class="bg-[#F7F7F7] rounded-[22px] p-[18px] text-left border border-[#EFEFEF]">
-            <p class="text-[13px] text-[#888] mb-[6px]">Аккаунт</p>
-            <p class="text-[16px] font-bold text-black">Пользователь</p>
+          <div
+            @click="redirectOrder()"
+            class="bg-[#F7F7F7] rounded-[22px] p-[18px] text-left border border-[#EFEFEF] cursor-pointer hover:bg-[#efefef] transition"
+          >
+            <p class="text-[13px] text-[#888] mb-[6px]">Заказы</p>
+            <p class="text-[16px] font-bold text-black">Мои заказы</p>
           </div>
         </div>
 
-        <!-- LOGOUT BUTTON -->
         <button
           @click="logoutHandler"
           class="w-full mt-[32px] h-[56px] rounded-full bg-black text-white font-semibold text-[16px] hover:bg-[#222] transition-all duration-200 active:scale-[0.98]"
@@ -80,7 +79,7 @@ const router = useRouter();
 
 const { getMe, logout } = useAuth();
 const { show, hide } = useGlobalLoader();
-const { redirectAuth } = globalRouting();
+const { redirectAuth, redirectOrder } = globalRouting();
 
 const user = ref<any>(null);
 

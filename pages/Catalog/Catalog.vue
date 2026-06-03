@@ -7,7 +7,7 @@
 
       <button
         @click="openFilters"
-        class="hidden max-md:flex h-[48px] px-5 rounded-full bg-black text-white font-semibold"
+        class="hidden max-md:flex h-[38px] items-center px-5 rounded-full bg-black text-white font-semibold"
       >
         Фильтры
       </button>
@@ -35,16 +35,14 @@
         />
 
         <input
-          v-model="minPrice"
-          type="number"
-          placeholder="Мин"
+          v-model.number="minPrice"
+          placeholder="Мин. цена"
           class="h-[56px] rounded-[18px] bg-[#F7F7F7] px-5 border border-transparent focus:border-black transition outline-none"
         />
 
         <input
-          v-model="maxPrice"
-          type="number"
-          placeholder="Макс"
+          v-model.number="maxPrice"
+          placeholder="Макс. цена"
           class="h-[56px] rounded-[18px] bg-[#F7F7F7] px-5 border border-transparent focus:border-black transition outline-none"
         />
 
@@ -62,7 +60,7 @@
         class="absolute bottom-0 left-0 right-0 h-[65vh] bg-white rounded-t-[32px] p-5 transition-transform duration-300"
         :class="sheetOpen ? 'translate-y-0' : 'translate-y-full'"
       >
-        <div class="flex justify-between">
+        <div class="flex justify-between px-[10px]">
           <div>
             <h2 class="text-[24px] font-bold">Фильтры</h2>
           </div>
@@ -72,8 +70,8 @@
 
         <div class="mt-6 space-y-4">
           <input v-model="search" placeholder="Поиск" class="input" />
-          <input v-model="minPrice" type="number" placeholder="Мин" class="input" />
-          <input v-model="maxPrice" type="number" placeholder="Макс" class="input" />
+          <input v-model.number="minPrice" placeholder="Минимальная цена" class="input" />
+          <input v-model.number="maxPrice" placeholder="Максимальная цена" class="input" />
         </div>
 
         <div class="absolute bottom-0 left-0 right-0 p-5 border-t">

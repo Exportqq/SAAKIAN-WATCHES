@@ -39,6 +39,14 @@ export const globalRouting = () => {
     router.push('/Home/Home');
   };
 
+  const redirectAdmin = () => {
+    router.push('/Admin/Admin');
+  };
+
+  const redirectOrder = () => {
+    router.push('/Profile/Orders');
+  };
+
   return {
     isMainActive,
     isBasketPVZ,
@@ -51,5 +59,7 @@ export const globalRouting = () => {
     redirectAuth,
     redirectBasket,
     redirectHome,
+    redirectAdmin,
+    redirectOrder,
   };
 };

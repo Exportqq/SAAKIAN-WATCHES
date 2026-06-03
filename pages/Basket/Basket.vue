@@ -4,57 +4,60 @@
   <div class="max-w-[1400px] mx-auto px-4 py-10 pb-[90px] md:pb-10">
     <h1 class="text-[42px] font-extrabold mb-10">Корзина</h1>
 
-    <div v-if="basket.length" class="space-y-5">
+    <div v-if="basket.length" class="space-y-3">
       <div
         v-for="item in basket"
         :key="item.cart_item_id"
-        class="border border-[#E5E5E5] rounded-[24px] p-5 flex gap-5 max-md:flex-col"
+        class="border border-[#E5E5E5] rounded-[16px] p-4 flex gap-4 items-center"
       >
-        <div
-          class="w-full max-w-[220px] aspect-square bg-[#F0EEED] rounded-[20px] overflow-hidden shrink-0 max-md:max-w-full"
-        >
+        <div class="w-[72px] h-[72px] bg-[#F0EEED] rounded-[12px] overflow-hidden shrink-0">
           <img :src="normalizeImage(item.watch.images?.[0])" class="w-full h-full object-contain" />
         </div>
 
-        <div class="flex-1 flex flex-col justify-between">
-          <div>
-            <h2 class="text-[28px] font-bold">{{ item.watch.title }}</h2>
-            <p class="text-[18px] text-[#666] mt-2">{{ item.watch.brand }}</p>
-            <p class="text-[18px] text-[#666]">{{ item.watch.mechanism }}</p>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-[15px] font-semibold truncate">{{ item.watch.title }}</h2>
+          <p class="text-[13px] text-[#888] mt-0.5 mb-2">{{ item.watch.brand }} · {{ item.watch.mechanism }}</p>
 
-            <div class="mt-5">
-              <span class="text-[30px] font-bold">{{ item.watch.price.toLocaleString() }} ₽</span>
-            </div>
-          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[16px] font-semibold">{{ item.watch.price.toLocaleString() }} ₽</span>
 
-          <div class="flex items-center justify-between mt-6">
-            <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center gap-4">
-              <button v-if="item.quantity > 1" class="w-6 h-6 flex items-center justify-center" @click="decrease(item)">
-                <img src="/icons/minus.svg" class="w-full h-full" />
+            <div class="flex items-center gap-1.5">
+              <button
+                v-if="item.quantity > 1"
+                class="w-7 h-7 rounded-full border border-[#E5E5E5] bg-[#F5F5F5] flex items-center justify-center hover:bg-[#EBEBEB] transition-all"
+                @click="decrease(item)"
+              >
+                <img src="/icons/minus.svg" class="w-3.5 h-3.5" />
               </button>
 
-              <span class="text-[18px] font-semibold">{{ item.quantity }} шт.</span>
+              <span class="text-[14px] font-semibold min-w-[18px] text-center">{{ item.quantity }}</span>
 
-              <button class="w-6 h-6 flex items-center justify-center" @click="increase(item)">
-                <img src="/icons/plus.svg" class="w-full h-full" />
+              <button
+                class="w-7 h-7 rounded-full border border-[#E5E5E5] bg-[#F5F5F5] flex items-center justify-center hover:bg-[#EBEBEB] transition-all"
+                @click="increase(item)"
+              >
+                <img src="/icons/plus.svg" class="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                class="w-7 h-7 rounded-full border border-[#E5E5E5] flex items-center justify-center hover:bg-red-50 transition-all ml-1"
+                @click="remove(item.watch.custom_id)"
+              >
+                <img src="/icons/trash.svg" class="w-3.5 h-3.5 opacity-40" />
               </button>
             </div>
-
-            <button
-              class="bg-black text-white px-6 py-3 rounded-full font-semibold hover:opacity-80 transition-all"
-              @click="remove(item.watch.custom_id)"
-            >
-              Удалить
-            </button>
           </div>
         </div>
       </div>
 
-      <div class="mt-10 border-t pt-6 flex items-center justify-between max-md:hidden">
-        <span class="text-[36px] font-extrabold">{{ totalPrice.toLocaleString() }} ₽</span>
+      <div class="mt-8 border-t pt-5 flex items-center justify-between max-md:hidden">
+        <div>
+          <p class="text-[13px] text-[#888]">Итого</p>
+          <span class="text-[28px] font-extrabold">{{ totalPrice.toLocaleString() }} ₽</span>
+        </div>
 
         <button
-          class="bg-black text-white px-8 py-4 rounded-full font-semibold hover:opacity-80 transition-all"
+          class="bg-black text-white px-8 py-3 rounded-full font-semibold hover:opacity-80 transition-all"
           @click="goNext"
         >
           Далее
@@ -62,7 +65,10 @@
       </div>
 
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex items-center justify-between md:hidden z-50">
-        <span class="text-[22px] font-extrabold">{{ totalPrice.toLocaleString() }} ₽</span>
+        <div>
+          <p class="text-[12px] text-[#888]">Итого</p>
+          <span class="text-[18px] font-extrabold">{{ totalPrice.toLocaleString() }} ₽</span>
+        </div>
 
         <button class="bg-black text-white px-6 py-3 rounded-full font-semibold" @click="goNext">Далее</button>
       </div>
