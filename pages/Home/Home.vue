@@ -12,11 +12,14 @@
       <PopularCollection />
     </div>
   </div>
+
+  <Contacts />
 </template>
 
 <script lang="ts" setup>
 import useWindowSizes from '~/src/composables/window_size';
 import DesktopHeader from '../Header/DesktopHeader.vue';
+import Contacts from './components/Contacts.vue';
 import Greetings from './components/Greetings.vue';
 import NewCollection from './components/NewCollection.vue';
 import PopularCollection from './components/PopularCollection.vue';

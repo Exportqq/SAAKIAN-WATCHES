@@ -105,6 +105,35 @@
         </div>
       </div>
 
+      <div class="flex items-start gap-3 cursor-pointer select-none">
+        <div
+          class="mt-0.5 w-5 h-5 rounded-[6px] border-2 shrink-0 flex items-center justify-center transition-all"
+          :class="agreed ? 'bg-black border-black' : 'border-[#CCC]'"
+          @click="agreed = !agreed"
+        >
+          <svg v-if="agreed" class="w-3 h-3 text-white" viewBox="0 0 12 10" fill="none">
+            <path
+              d="M1 5L4.5 8.5L11 1.5"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <span class="text-[13px] text-[#666] leading-relaxed">
+          Я согласен(а) на
+          <button
+            type="button"
+            class="underline underline-offset-2 text-black hover:opacity-70 transition"
+            @click="pdModal = true"
+          >
+            обработку персональных данных
+          </button>
+          в соответствии с Федеральным законом №152-ФЗ
+        </span>
+      </div>
+
       <ButtonUI
         :text="'Далее'"
         :max-width="true"
@@ -116,6 +145,49 @@
       />
     </div>
   </div>
+
+  <Transition name="fade">
+    <div
+      v-if="pdModal"
+      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4"
+      @click.self="pdModal = false"
+    >
+      <div class="bg-white w-full max-w-[480px] rounded-[28px] p-7 space-y-4 max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <h2 class="text-[18px] font-extrabold">Обработка персональных данных</h2>
+          <button
+            class="w-8 h-8 rounded-full bg-[#F5F5F5] flex items-center justify-center hover:bg-[#eee] transition shrink-0"
+            @click="pdModal = false"
+          >
+            <span class="text-[18px] leading-none text-[#555]">×</span>
+          </button>
+        </div>
+
+        <div class="text-[13px] text-[#555] space-y-3 leading-relaxed">
+          <p>
+            Настоящим вы даёте согласие на обработку своих персональных данных (ФИО, номер телефона, адрес доставки) в
+            целях оформления и исполнения заказа.
+          </p>
+          <p>
+            Обработка персональных данных осуществляется в соответствии с Федеральным законом от 27.07.2006 №152-ФЗ «О
+            персональных данных».
+          </p>
+          <p>
+            Ваши данные не передаются третьим лицам, за исключением служб доставки (СДЭК, Яндекс Маркет), необходимых
+            для исполнения заказа.
+          </p>
+          <p>Вы вправе отозвать согласие в любое время, направив письменное обращение.</p>
+        </div>
+
+        <button
+          class="w-full h-[50px] rounded-full bg-black text-white font-semibold text-[15px] hover:opacity-80 transition"
+          @click="pdModal = false"
+        >
+          Понятно
+        </button>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -133,27 +205,32 @@ const address = ref('');
 const phone = ref('');
 const fio = ref('');
 const comment = ref('');
+const agreed = ref(false);
+const pdModal = ref(false);
 
 const { basket } = useBasket();
 const { createOrder } = useOrder();
-const { redirectCatalog } = globalRouting();
+const { redirectOrder } = globalRouting();
 
 const canContinue = computed(() => {
-  return address.value.trim().length > 5 && phone.value.replace(/\D/g, '').length === 11 && fio.value.trim().length > 3;
+  return (
+    address.value.trim().length > 5 &&
+    phone.value.replace(/\D/g, '').length === 11 &&
+    fio.value.trim().length > 3 &&
+    agreed.value
+  );
 });
 
 const totalPrice = computed(() => {
   return basket.value.reduce((acc, i) => acc + i.watch.price * i.quantity, 0);
 });
 
-const maxBonusUse = computed(() => totalPrice.value * 0.3);
+const maxBonusUse = computed(() => totalPrice.value * 0.2);
 
 const bonusToUse = computed(() => {
   const balance = bonus.value?.balance || 0;
   return Math.min(balance, maxBonusUse.value);
 });
-
-/* ================= PHONE FORMAT ================= */
 
 const applyFormat = (digits: string): string => {
   if (digits.length === 0) return '';
@@ -176,7 +253,6 @@ const formatPhone = (e: Event) => {
   const input = e.target as HTMLInputElement;
   const digits = getDigits(phone.value);
   phone.value = applyFormat(digits);
-
   nextTick(() => {
     input.setSelectionRange(phone.value.length, phone.value.length);
   });
@@ -186,12 +262,10 @@ const handleKeydown = (e: KeyboardEvent) => {
   if (e.key !== 'Backspace') return;
 };
 
-/* ================= ORDER ================= */
-
 const nextStep = async () => {
   try {
     const balance = bonus.value?.balance || 0;
-    const max = totalPrice.value * 0.3;
+    const max = totalPrice.value * 0.2;
     const use = Math.min(balance, max);
 
     await createOrder({
@@ -200,14 +274,24 @@ const nextStep = async () => {
       phone: phone.value,
       fio: fio.value,
       comment: comment.value || undefined,
-
       use_bonus: use > 0,
       bonus_to_use: use,
     });
 
-    redirectCatalog?.();
+    redirectOrder?.();
   } catch (e) {
     console.log('Ошибка при создании заказа', 'error');
   }
 };
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

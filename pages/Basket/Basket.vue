@@ -94,12 +94,14 @@
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex items-center justify-between md:hidden z-50">
         <div class="w-full">
           <div class="flex items-end gap-[10px]">
-            <div class="text-[18px] font-extrabold">{{ finalPrice.toLocaleString() }} ₽</div>
+            <div class="text-[20px] font-extrabold">{{ finalPrice.toLocaleString() }} ₽</div>
 
             <div v-if="useBonusToggle" class="text-right">
-              <div class="text-[12px] text-green-600">− {{ bonusToUse.toLocaleString() }} ₽</div>
+              <div class="text-[14px] text-green-600">− {{ bonusToUse.toLocaleString() }} ₽</div>
 
-              <div class="text-[11px] text-[#999] line-through">{{ totalPrice.toLocaleString() }} ₽</div>
+              <div v-if="!isMobile" class="text-[11px] text-[#999] line-through">
+                {{ totalPrice.toLocaleString() }} ₽
+              </div>
             </div>
           </div>
 
@@ -145,12 +147,14 @@ import { globalRouting } from '~/src/composables/globbal';
 import { useBonus } from '~/src/composables/useBonus';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
+import useWindowSizes from '~/src/composables/window_size.js';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
 const { basket, getBasket, addToBasket, removeFromBasket } = useBasket();
 const { show, hide } = useGlobalLoader();
 const { redirectDelivery } = globalRouting();
+const { isMobile } = useWindowSizes();
 
 const { bonus, fetchBonus } = useBonus();
 
@@ -176,7 +180,7 @@ const totalPrice = computed(() => {
   return basket.value.reduce((acc, i) => acc + i.watch.price * i.quantity, 0);
 });
 
-const maxBonusUse = computed(() => totalPrice.value * 0.3);
+const maxBonusUse = computed(() => totalPrice.value * 0.2);
 
 const bonusToUse = computed(() => {
   if (!useBonusToggle.value) return 0;

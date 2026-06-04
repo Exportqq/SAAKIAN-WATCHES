@@ -53,30 +53,63 @@
           Найти
         </button>
       </div>
+
+      <div v-if="availableBrands.length" class="mt-4 flex flex-wrap gap-2">
+        <button
+          v-for="brand in availableBrands"
+          :key="brand"
+          @click="toggleBrand(brand)"
+          class="h-[36px] px-4 rounded-full text-[13px] font-semibold transition border"
+          :class="
+            selectedBrands.includes(brand)
+              ? 'bg-black text-white border-black'
+              : 'bg-[#F7F7F7] text-[#555] border-transparent hover:border-black'
+          "
+        >
+          {{ brand }}
+        </button>
+      </div>
     </div>
 
     <div v-if="filtersOpen" class="fixed inset-0 bg-black/40 z-[100]" @click.self="closeFilters">
       <div
-        class="absolute bottom-0 left-0 right-0 h-[65vh] bg-white rounded-t-[32px] p-5 transition-transform duration-300"
+        class="absolute bottom-0 left-0 right-0 h-[75vh] bg-white rounded-t-[32px] p-5 transition-transform duration-300 flex flex-col"
         :class="sheetOpen ? 'translate-y-0' : 'translate-y-full'"
       >
         <div class="flex justify-between px-[10px]">
-          <div>
-            <h2 class="text-[24px] font-bold">Фильтры</h2>
-          </div>
-
+          <h2 class="text-[24px] font-bold">Фильтры</h2>
           <button @click="closeFilters">✕</button>
         </div>
 
-        <div class="mt-6 space-y-4">
+        <div class="mt-6 space-y-4 flex-1 overflow-y-auto">
           <input v-model="search" placeholder="Поиск" class="input" />
           <input v-model.number="minPrice" placeholder="Минимальная цена" class="input" />
           <input v-model.number="maxPrice" placeholder="Максимальная цена" class="input" />
+
+          <div v-if="availableBrands.length">
+            <p class="text-[13px] font-semibold text-[#999] uppercase tracking-wide mb-2 px-1">Бренд</p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="brand in availableBrands"
+                :key="brand"
+                @click="toggleBrand(brand)"
+                class="h-[36px] px-4 rounded-full text-[13px] font-semibold transition border"
+                :class="
+                  selectedBrands.includes(brand)
+                    ? 'bg-black text-white border-black'
+                    : 'bg-[#F7F7F7] text-[#555] border-transparent'
+                "
+              >
+                {{ brand }}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-5 border-t">
-          <button @click="submitMobile" class="w-full h-[56px] bg-black text-white rounded-full">Найти</button>
-
+        <div class="pt-4 border-t">
+          <button @click="submitMobile" class="w-full h-[56px] bg-black text-white rounded-full font-semibold">
+            Найти
+          </button>
           <button @click="resetFilters" class="w-full mt-3 h-[52px] bg-[#F3F3F3] text-black rounded-full font-semibold">
             Сбросить
           </button>
@@ -85,13 +118,13 @@
     </div>
 
     <div class="grid grid-cols-4 max-md:grid-cols-2 gap-[16px] mt-6">
-      <WatchCard v-for="watch in watches" :key="watch.custom_id" :watch="watch" />
+      <WatchCard v-for="watch in filteredWatches" :key="watch.custom_id" :watch="watch" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import { useWatch } from '~/src/composables/GetWatch';
 import WatchCard from '~/src/UI/WatchCard.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
@@ -101,9 +134,26 @@ const { getWatches, watches } = useWatch();
 const search = ref('');
 const minPrice = ref<number | null>(null);
 const maxPrice = ref<number | null>(null);
+const selectedBrands = ref<string[]>([]);
 
 const filtersOpen = ref(false);
 const sheetOpen = ref(false);
+
+const availableBrands = computed(() => {
+  const brands = watches.value.map((w) => w.brand).filter(Boolean);
+  return [...new Set(brands)].sort();
+});
+
+const filteredWatches = computed(() => {
+  if (!selectedBrands.value.length) return watches.value;
+  return watches.value.filter((w) => selectedBrands.value.includes(w.brand));
+});
+
+const toggleBrand = (brand: string) => {
+  const idx = selectedBrands.value.indexOf(brand);
+  if (idx === -1) selectedBrands.value.push(brand);
+  else selectedBrands.value.splice(idx, 1);
+};
 
 onMounted(() => {
   applyFilters();
@@ -137,6 +187,7 @@ const resetFilters = async () => {
   search.value = '';
   minPrice.value = null;
   maxPrice.value = null;
+  selectedBrands.value = [];
   await applyFilters();
 };
 </script>
