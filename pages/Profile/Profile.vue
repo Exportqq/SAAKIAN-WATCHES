@@ -66,26 +66,21 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-import { useBasket } from '~/src/composables/AddBasket';
-import { globalRouting } from '~/src/composables/globbal';
-import { useAuth } from '~/src/composables/useAuth';
-import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
-const router = useRouter();
+import { globalRouting } from '~/src/composables/globbal';
+import { useAuth } from '~/src/composables/useAuth';
+import { useBonus } from '~/src/composables/useBonus';
+import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
 const { getMe, logout } = useAuth();
 const { show, hide } = useGlobalLoader();
 const { redirectAuth, redirectOrder } = globalRouting();
 
+const { bonus, fetchBonus } = useBonus();
+
 const user = ref<any>(null);
-
-const { basket } = useBasket();
-
-const bonus = ref<any>(null);
 
 const logoutHandler = () => {
   logout();
@@ -97,10 +92,7 @@ onMounted(async () => {
     show();
 
     user.value = await getMe();
-
-    bonus.value = {
-      balance: 0,
-    };
+    await fetchBonus();
   } finally {
     hide();
   }

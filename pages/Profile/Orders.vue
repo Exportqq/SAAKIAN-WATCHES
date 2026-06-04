@@ -87,6 +87,9 @@ const statusText = (status: string) => {
     case 'paid':
       return 'Оплачен';
 
+    case 'shipped':
+      return 'Доставка';
+
     case 'completed':
       return 'Завершён';
 
@@ -98,16 +101,19 @@ const statusText = (status: string) => {
 const statusClass = (status: string) => {
   switch (status) {
     case 'processing':
-      return 'bg-[#FFF7E6] text-[#B7791F]';
+      return 'bg-[#FFF7E6] text-[#B7791F]'; // мягкий янтарный
 
     case 'waiting_payment':
-      return 'bg-[#EEF6FF] text-[#2B6CB0]';
+      return 'bg-[#FFF1F2] text-[#C2410C]'; // мягкий красно-оранжевый
 
     case 'paid':
-      return 'bg-[#EAFBF3] text-[#2F855A]';
+      return 'bg-[#ECFDF5] text-[#166534]'; // мягкий зелёный
+
+    case 'shipped':
+      return 'bg-[#EFF6FF] text-[#1D4ED8]'; // мягкий синий
 
     case 'completed':
-      return 'bg-[#F3F0FF] text-[#6B46C1]';
+      return 'bg-[#F3F4F6] text-[#374151]'; // нейтральный серый
 
     default:
       return 'bg-[#F7F7F7] text-[#666]';

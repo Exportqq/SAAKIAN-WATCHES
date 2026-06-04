@@ -10,7 +10,6 @@ interface IUser {
 interface AuthResponse {
   token: string;
   user: IUser;
-  token: string; // было access_token
 }
 
 export const useAuth = () => {

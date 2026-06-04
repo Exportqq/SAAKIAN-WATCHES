@@ -93,9 +93,9 @@
         </div>
 
         <div class="px-5 py-4">
-          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide"
-            >Комментарий <span class="normal-case font-normal text-[#BBB]">— необязательно</span></label
-          >
+          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">
+            Комментарий <span class="normal-case font-normal text-[#BBB]">— необязательно</span>
+          </label>
           <textarea
             v-model="comment"
             class="h-[150px] w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC] resize-none"
@@ -120,8 +120,11 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
+import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal.js';
+import { bonus } from '~/src/composables/useBonus';
 import { useOrder } from '~/src/composables/useOrder.js';
+
 import ButtonUI from '~/src/UI/ButtonUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
@@ -131,12 +134,26 @@ const phone = ref('');
 const fio = ref('');
 const comment = ref('');
 
+const { basket } = useBasket();
 const { createOrder } = useOrder();
 const { redirectCatalog } = globalRouting();
 
 const canContinue = computed(() => {
   return address.value.trim().length > 5 && phone.value.replace(/\D/g, '').length === 11 && fio.value.trim().length > 3;
 });
+
+const totalPrice = computed(() => {
+  return basket.value.reduce((acc, i) => acc + i.watch.price * i.quantity, 0);
+});
+
+const maxBonusUse = computed(() => totalPrice.value * 0.3);
+
+const bonusToUse = computed(() => {
+  const balance = bonus.value?.balance || 0;
+  return Math.min(balance, maxBonusUse.value);
+});
+
+/* ================= PHONE FORMAT ================= */
 
 const applyFormat = (digits: string): string => {
   if (digits.length === 0) return '';
@@ -157,51 +174,37 @@ const getDigits = (value: string): string => {
 
 const formatPhone = (e: Event) => {
   const input = e.target as HTMLInputElement;
-  const cursorPos = input.selectionStart ?? 0;
-  const prevLength = phone.value.length;
-
   const digits = getDigits(phone.value);
-  const formatted = applyFormat(digits);
-  phone.value = formatted;
+  phone.value = applyFormat(digits);
 
   nextTick(() => {
-    const diff = formatted.length - prevLength;
-    const newCursor = Math.max(0, cursorPos + diff);
-    input.setSelectionRange(newCursor, newCursor);
+    input.setSelectionRange(phone.value.length, phone.value.length);
   });
 };
 
 const handleKeydown = (e: KeyboardEvent) => {
   if (e.key !== 'Backspace') return;
-
-  const input = e.target as HTMLInputElement;
-  const pos = input.selectionStart ?? 0;
-
-  if (pos === 0) return;
-
-  const prevChar = phone.value[pos - 1] as string | undefined;
-  if (!prevChar) return;
-
-  if (/[\s()\-+]/.test(prevChar)) {
-    e.preventDefault();
-    const digits = getDigits(phone.value).slice(0, -1);
-    phone.value = applyFormat(digits);
-
-    nextTick(() => {
-      input.setSelectionRange(phone.value.length, phone.value.length);
-    });
-  }
 };
+
+/* ================= ORDER ================= */
 
 const nextStep = async () => {
   try {
+    const balance = bonus.value?.balance || 0;
+    const max = totalPrice.value * 0.3;
+    const use = Math.min(balance, max);
+
     await createOrder({
       delivery_type: deliveryType.value,
       address: address.value,
       phone: phone.value,
       fio: fio.value,
       comment: comment.value || undefined,
+
+      use_bonus: use > 0,
+      bonus_to_use: use,
     });
+
     redirectCatalog?.();
   } catch (e) {
     console.log('Ошибка при создании заказа', 'error');
