@@ -47,6 +47,10 @@ export const globalRouting = () => {
     router.push('/Profile/Orders');
   };
 
+  const redirectDeliveryInfo = () => {
+    router.push('/Home/components/Contacts/components/Delivery');
+  };
+
   return {
     isMainActive,
     isBasketPVZ,
@@ -61,5 +65,6 @@ export const globalRouting = () => {
     redirectHome,
     redirectAdmin,
     redirectOrder,
+    redirectDeliveryInfo,
   };
 };

@@ -34,11 +34,22 @@
               <p class="text-[#777] text-[14px] mt-1">{{ formatDate(order.created_at) }}</p>
             </div>
 
-            <div>
+            <div class="text-right">
               <span :class="statusClass(order.status)" class="px-4 py-2 rounded-full text-[14px] font-semibold">
                 {{ statusText(order.status) }}
               </span>
             </div>
+          </div>
+
+          <!-- ДОБАВЛЯЕМ ОТОБРАЖЕНИЕ ЦЕНЫ В СВЁРНУТОМ ВИДЕ -->
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-[18px] font-bold">{{ order.final_price.toLocaleString() }} ₽</span>
+              <span v-if="order.bonus_used > 0" class="text-[13px] text-green-600">
+                (списано {{ order.bonus_used.toLocaleString() }} бонусов)
+              </span>
+            </div>
+            <span class="text-[13px] text-[#888]">{{ order.items?.length || 0 }} {{ getItemWord(order.items?.length || 0) }}</span>
           </div>
 
           <button
@@ -97,7 +108,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import { useOrder } from '~/src/composables/useOrder';
 import DesktopHeader from '../Header/DesktopHeader.vue';
@@ -115,6 +125,13 @@ const filteredOrders = computed(() => {
   }
   return orders.value.filter((o) => o.status !== 'completed');
 });
+
+// Добавляем вспомогательную функцию для склонения слова "товар"
+const getItemWord = (count: number) => {
+  if (count === 1) return 'товар';
+  if (count >= 2 && count <= 4) return 'товара';
+  return 'товаров';
+};
 
 const statusText = (status: string) => {
   switch (status) {

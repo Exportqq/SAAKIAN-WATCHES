@@ -48,7 +48,7 @@
 
         <button
           @click="applyFilters"
-          class="h-[56px] rounded-[18px] bg-black text-white font-semibold hover:bg-[#1f1f1f] transition active:scale-[0.99]"
+          class="cursor-pointer h-[56px] rounded-[18px] bg-black text-white font-semibold hover:bg-[#1f1f1f] transition active:scale-[0.99]"
         >
           Найти
         </button>
@@ -59,7 +59,7 @@
           v-for="brand in availableBrands"
           :key="brand"
           @click="toggleBrand(brand)"
-          class="h-[36px] px-4 rounded-full text-[13px] font-semibold transition border"
+          class="cursor-pointer h-[36px] px-4 rounded-full text-[13px] font-semibold transition border"
           :class="
             selectedBrands.includes(brand)
               ? 'bg-black text-white border-black'
@@ -93,7 +93,7 @@
                 v-for="brand in availableBrands"
                 :key="brand"
                 @click="toggleBrand(brand)"
-                class="h-[36px] px-4 rounded-full text-[13px] font-semibold transition border"
+                class="cursor-pointer h-[36px] px-4 rounded-full text-[13px] font-semibold transition border"
                 :class="
                   selectedBrands.includes(brand)
                     ? 'bg-black text-white border-black'
@@ -107,10 +107,16 @@
         </div>
 
         <div class="pt-4 border-t">
-          <button @click="submitMobile" class="w-full h-[56px] bg-black text-white rounded-full font-semibold">
+          <button
+            @click="submitMobile"
+            class="cursor-pointer w-full h-[56px] bg-black text-white rounded-full font-semibold"
+          >
             Найти
           </button>
-          <button @click="resetFilters" class="w-full mt-3 h-[52px] bg-[#F3F3F3] text-black rounded-full font-semibold">
+          <button
+            @click="resetFilters"
+            class="w-full mt-3 h-[52px] bg-[#F3F3F3] text-black rounded-full font-semibold"
+          >
             Сбросить
           </button>
         </div>

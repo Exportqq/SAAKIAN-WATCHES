@@ -58,19 +58,21 @@
           <p class="text-[13px] text-[#888]">Итого</p>
 
           <div class="flex items-center gap-3">
-            <div class="text-[28px] font-extrabold">{{ finalPrice.toLocaleString() }} ₽</div>
+            <div class="text-[28px] font-extrabold">
+              {{ previewData ? previewData.final_price.toLocaleString() : totalPrice.toLocaleString() }} ₽
+            </div>
 
-            <div v-if="useBonusToggle" class="text-right top-[5px] relative">
-              <div class="text-[15px] text-green-600">− {{ bonusToUse.toLocaleString() }} ₽ бонусами</div>
-
-              <div class="text-[12px] text-[#999] line-through">{{ totalPrice.toLocaleString() }} ₽</div>
+            <div v-if="useBonusToggle && previewData?.bonus_to_use" class="text-right top-[5px] relative">
+              <div class="text-[15px] text-green-600">− {{ previewData.bonus_to_use.toLocaleString() }} ₽ бонусами</div>
+              <div class="text-[12px] text-[#999] line-through">{{ previewData.total_price.toLocaleString() }} ₽</div>
             </div>
           </div>
 
           <div class="mt-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
               <button
-                @click="toggleBonus"
+                @click="handleToggleBonus"
+                :disabled="isLoadingPreview"
                 class="relative w-12 h-7 flex items-center rounded-full transition-all duration-300"
                 :class="useBonusToggle ? 'bg-black' : 'bg-gray-300'"
               >
@@ -94,13 +96,14 @@
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex items-center justify-between md:hidden z-50">
         <div class="w-full">
           <div class="flex items-end gap-[10px]">
-            <div class="text-[20px] font-extrabold">{{ finalPrice.toLocaleString() }} ₽</div>
+            <div class="text-[20px] font-extrabold">
+              {{ previewData ? previewData.final_price.toLocaleString() : totalPrice.toLocaleString() }} ₽
+            </div>
 
-            <div v-if="useBonusToggle" class="text-right">
-              <div class="text-[14px] text-green-600">− {{ bonusToUse.toLocaleString() }} ₽</div>
-
+            <div v-if="useBonusToggle && previewData?.bonus_to_use" class="text-right">
+              <div class="text-[14px] text-green-600">− {{ previewData.bonus_to_use.toLocaleString() }} ₽</div>
               <div v-if="!isMobile" class="text-[11px] text-[#999] line-through">
-                {{ totalPrice.toLocaleString() }} ₽
+                {{ previewData.total_price.toLocaleString() }} ₽
               </div>
             </div>
           </div>
@@ -108,7 +111,8 @@
           <div class="flex items-center justify-between mt-2">
             <div class="flex items-center gap-2">
               <button
-                @click="toggleBonus"
+                @click="handleToggleBonus"
+                :disabled="isLoadingPreview"
                 class="relative w-11 h-6 flex items-center rounded-full transition-all duration-300"
                 :class="useBonusToggle ? 'bg-black' : 'bg-gray-300'"
               >
@@ -140,13 +144,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-
+import { computed, onMounted, ref, watch } from 'vue';
 import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal';
 import { useBonus } from '~/src/composables/useBonus';
+import { useBonusState } from '~/src/composables/useBonusState';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
-
 import useWindowSizes from '~/src/composables/window_size.js';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
@@ -155,14 +158,15 @@ const { basket, getBasket, addToBasket, removeFromBasket } = useBasket();
 const { show, hide } = useGlobalLoader();
 const { redirectDelivery } = globalRouting();
 const { isMobile } = useWindowSizes();
-
 const { bonus, fetchBonus } = useBonus();
+const { useBonusToggle, toggleBonus } = useBonusState();
 
 const popupVisible = ref(false);
 const popupMessage = ref('');
 const popupType = ref<'success' | 'error' | 'warning'>('success');
 
-const useBonusToggle = ref(false);
+const isLoadingPreview = ref(false);
+const previewData = ref<any>(null);
 
 const API_URL = 'https://watches-api-c9i5.onrender.com';
 
@@ -172,33 +176,73 @@ const normalizeImage = (path?: string) => {
   return `${API_URL}${path}`;
 };
 
-/* ===== FIXED LOGIC ===== */
-
 const bonusBalance = computed(() => bonus.value?.balance ?? 0);
 
 const totalPrice = computed(() => {
   return basket.value.reduce((acc, i) => acc + i.watch.price * i.quantity, 0);
 });
 
-const maxBonusUse = computed(() => totalPrice.value * 0.2);
+// Запрос предпросмотра с бэка
+const fetchPreview = async () => {
+  if (basket.value.length === 0) {
+    previewData.value = null;
+    return;
+  }
 
-const bonusToUse = computed(() => {
-  if (!useBonusToggle.value) return 0;
-  return Math.min(bonusBalance.value, maxBonusUse.value);
-});
+  isLoadingPreview.value = true;
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-const finalPrice = computed(() => {
-  return totalPrice.value - bonusToUse.value;
-});
+    const response = await fetch(`${API_URL}/orders/preview`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        delivery_type: 'cdek',
+        address: 'preview',
+        phone: '+70000000000',
+        fio: 'preview',
+        use_bonus: useBonusToggle.value,
+      }),
+    });
 
-const toggleBonus = () => {
-  useBonusToggle.value = !useBonusToggle.value;
+    if (response.ok) {
+      previewData.value = await response.json();
+    }
+  } catch (error) {
+    console.error('Preview error:', error);
+  } finally {
+    isLoadingPreview.value = false;
+  }
 };
 
-/* ===== ACTIONS ===== */
+// Новая функция-обертка для toggleBonus с лоадером
+const handleToggleBonus = async () => {
+  show(); // Показываем лоадер
+  toggleBonus(); // Переключаем тумблер
+  await fetchPreview(); // Ждем загрузки предпросмотра
+  hide(); // Скрываем лоадер
+};
+
+// Следим за изменением корзины (тумблер теперь обновляется через handleToggleBonus)
+watch(
+  () => basket.value.length,
+  () => {
+    fetchPreview();
+  },
+);
 
 const refresh = async () => {
-  await getBasket();
+  show();
+  try {
+    await getBasket();
+    await fetchPreview();
+  } finally {
+    hide();
+  }
 };
 
 const increase = async (item: any) => {
@@ -239,6 +283,7 @@ onMounted(async () => {
   show();
   try {
     await Promise.all([getBasket(), fetchBonus()]);
+    await fetchPreview();
   } finally {
     hide();
   }

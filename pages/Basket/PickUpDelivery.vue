@@ -188,16 +188,25 @@
       </div>
     </div>
   </Transition>
+
+  <PopupUI
+    :message="popupMessage"
+    :type="popupType"
+    :show="popupVisible"
+    :duration="2000"
+    @close="popupVisible = false"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue';
 import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal.js';
-import { bonus } from '~/src/composables/useBonus';
+import { useBonusState } from '~/src/composables/useBonusState';
+import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import { useOrder } from '~/src/composables/useOrder.js';
-
 import ButtonUI from '~/src/UI/ButtonUI.vue';
+import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
 const deliveryType = ref<'cdek' | 'yandex'>('cdek');
@@ -208,9 +217,15 @@ const comment = ref('');
 const agreed = ref(false);
 const pdModal = ref(false);
 
+const popupVisible = ref(false);
+const popupMessage = ref('');
+const popupType = ref<'success' | 'error' | 'warning'>('success');
+
 const { basket } = useBasket();
 const { createOrder } = useOrder();
 const { redirectOrder } = globalRouting();
+const { show, hide } = useGlobalLoader();
+const { useBonusToggle } = useBonusState();
 
 const canContinue = computed(() => {
   return (
@@ -219,17 +234,6 @@ const canContinue = computed(() => {
     fio.value.trim().length > 3 &&
     agreed.value
   );
-});
-
-const totalPrice = computed(() => {
-  return basket.value.reduce((acc, i) => acc + i.watch.price * i.quantity, 0);
-});
-
-const maxBonusUse = computed(() => totalPrice.value * 0.2);
-
-const bonusToUse = computed(() => {
-  const balance = bonus.value?.balance || 0;
-  return Math.min(balance, maxBonusUse.value);
 });
 
 const applyFormat = (digits: string): string => {
@@ -263,24 +267,31 @@ const handleKeydown = (e: KeyboardEvent) => {
 };
 
 const nextStep = async () => {
+  show();
   try {
-    const balance = bonus.value?.balance || 0;
-    const max = totalPrice.value * 0.2;
-    const use = Math.min(balance, max);
-
+    // Отправляем только use_bonus, бэк сам рассчитает
     await createOrder({
       delivery_type: deliveryType.value,
       address: address.value,
       phone: phone.value,
       fio: fio.value,
       comment: comment.value || undefined,
-      use_bonus: use > 0,
-      bonus_to_use: use,
+      use_bonus: useBonusToggle.value,
     });
 
-    redirectOrder?.();
-  } catch (e) {
-    console.log('Ошибка при создании заказа', 'error');
+    popupMessage.value = 'Заказ успешно создан!';
+    popupType.value = 'success';
+    popupVisible.value = true;
+
+    setTimeout(() => {
+      redirectOrder?.();
+    }, 1000);
+  } catch (e: any) {
+    popupMessage.value = e?.message || 'Ошибка при создании заказа';
+    popupType.value = 'error';
+    popupVisible.value = true;
+  } finally {
+    hide();
   }
 };
 </script>

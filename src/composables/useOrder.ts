@@ -1,3 +1,4 @@
+// src/composables/useOrder.ts
 import { useGlobalLoader } from './useGlobalLoader';
 
 const API_URL = 'https://watches-api-c9i5.onrender.com';
@@ -12,12 +13,21 @@ export const useOrder = () => {
     fio: string;
     comment?: string;
     use_bonus?: boolean;
-    bonus_to_use?: number;
   }) => {
     show();
 
     try {
       const token = localStorage.getItem('token');
+
+      // Для отладки - выведи что отправляется
+      console.log('Creating order with data:', {
+        delivery_type: data.delivery_type,
+        address: data.address,
+        phone: data.phone,
+        fio: data.fio,
+        comment: data.comment || '',
+        use_bonus: data.use_bonus ?? false,
+      });
 
       const res = await fetch(`${API_URL}/orders`, {
         method: 'POST',
@@ -26,13 +36,19 @@ export const useOrder = () => {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          ...data,
+          delivery_type: data.delivery_type,
+          address: data.address,
+          phone: data.phone,
+          fio: data.fio,
+          comment: data.comment || '',
           use_bonus: data.use_bonus ?? false,
-          bonus_to_use: data.bonus_to_use ?? 0,
         }),
       });
 
       const result = await res.json();
+
+      // Для отладки - что вернул бэк
+      console.log('Order created:', result);
 
       if (!res.ok) {
         console.error('CREATE ORDER ERROR:', result);

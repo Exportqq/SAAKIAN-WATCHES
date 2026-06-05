@@ -15,12 +15,20 @@
           <p class="text-[13px] font-bold uppercase tracking-widest text-[#999]">Поддержка</p>
 
           <div class="space-y-2">
-            <button class="text-[14px] text-[#444] hover:text-black transition text-left" @click="supportModal = true">
+            <button
+              class="cursor-pointer text-[14px] text-[#444] hover:text-black transition text-left"
+              @click="supportModal = true"
+            >
               Помощь с заказом
             </button>
 
             <p class="text-[14px] text-[#444]">Возврат</p>
-            <p class="text-[14px] text-[#444]">Доставка</p>
+            <button
+              class="cursor-pointer text-[14px] text-[#444] hover:text-black transition text-left"
+              @click="redirectDeliveryInfo"
+            >
+              Доставка
+            </button>
           </div>
         </div>
 
@@ -124,8 +132,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { globalRouting } from '~/src/composables/globbal';
 
 const supportModal = ref(false);
+const { redirectDeliveryInfo } = globalRouting();
 </script>
 
 <style scoped>
