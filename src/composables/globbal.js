@@ -51,6 +51,14 @@ export const globalRouting = () => {
     router.push('/Home/components/Contacts/components/Delivery');
   };
 
+  const redirectPrivacyPolicy = () => {
+    router.push('/Home/components/Contacts/components/PrivacyPolicy');
+  };
+
+  const redirectReturnPolicy = () => {
+    router.push('/Home/components/Contacts/components/ReturnPolicy');
+  };
+
   return {
     isMainActive,
     isBasketPVZ,
@@ -66,5 +74,7 @@ export const globalRouting = () => {
     redirectAdmin,
     redirectOrder,
     redirectDeliveryInfo,
+    redirectPrivacyPolicy,
+    redirectReturnPolicy,
   };
 };

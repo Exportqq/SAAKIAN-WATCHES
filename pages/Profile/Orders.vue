@@ -49,7 +49,9 @@
                 (списано {{ order.bonus_used.toLocaleString() }} бонусов)
               </span>
             </div>
-            <span class="text-[13px] text-[#888]">{{ order.items?.length || 0 }} {{ getItemWord(order.items?.length || 0) }}</span>
+            <span class="text-[13px] text-[#888]"
+              >{{ order.items?.length || 0 }} {{ getItemWord(order.items?.length || 0) }}</span
+            >
           </div>
 
           <button
@@ -69,8 +71,12 @@
             </div>
 
             <div class="space-y-4">
-              <div v-for="item in order.items" :key="item.watch_id" class="flex gap-4 border rounded-[16px] p-4">
-                <img :src="item.images?.[0]" class="w-[90px] h-[90px] object-cover rounded-[12px]" />
+              <div
+                v-for="item in order.items"
+                :key="item.watch_id"
+                class="flex gap-4 border rounded-[16px] p-4 items-center"
+              >
+                <img :src="item.images?.[0]" class="w-[55px] h-[90px] rounded-[12px]" />
                 <div>
                   <p class="font-bold">{{ item.title }}</p>
                   <p class="text-[#666]">{{ item.brand }}</p>

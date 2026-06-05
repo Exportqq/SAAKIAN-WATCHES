@@ -21,8 +21,14 @@
             >
               Помощь с заказом
             </button>
-
-            <p class="text-[14px] text-[#444]">Возврат</p>
+            <br />
+            <button
+              class="cursor-pointer text-[14px] text-[#444] hover:text-black transition text-left"
+              @click="redirectReturnPolicy"
+            >
+              Возврат
+            </button>
+            <br />
             <button
               class="cursor-pointer text-[14px] text-[#444] hover:text-black transition text-left"
               @click="redirectDeliveryInfo"
@@ -64,7 +70,7 @@
       >
         <p class="text-[13px] text-[#BBB']">© {{ new Date().getFullYear() }} Все права защищены</p>
 
-        <p class="text-[13px] text-[#BBB]">Политика конфиденциальности</p>
+        <button @click="redirectPrivacyPolicy" class="text-[13px] text-[#BBB]">Политика конфиденциальности</button>
       </div>
     </div>
   </footer>
@@ -135,7 +141,7 @@ import { ref } from 'vue';
 import { globalRouting } from '~/src/composables/globbal';
 
 const supportModal = ref(false);
-const { redirectDeliveryInfo } = globalRouting();
+const { redirectDeliveryInfo, redirectPrivacyPolicy, redirectReturnPolicy } = globalRouting();
 </script>
 
 <style scoped>

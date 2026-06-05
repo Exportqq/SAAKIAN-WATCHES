@@ -8,7 +8,7 @@
         <p class="text-[14px] text-[#888] mt-1">Укажите данные для получения заказа</p>
       </div>
 
-      <div class="border border-[#ECECEC] rounded-[20px] overflow-hidden bg-white">
+      <div class="border border-[#D8D8D8] rounded-[20px] overflow-hidden bg-white divide-y divide-[#ECECEC]">
         <button
           class="w-full flex items-center gap-4 px-5 py-4 transition-all"
           :class="
@@ -32,73 +32,71 @@
           </div>
         </button>
 
-        <div class="border-t border-[#ECECEC]" />
-
         <button
           class="w-full flex items-center gap-4 px-5 py-4 transition-all"
           :class="
             deliveryType === 'yandex'
-              ? 'bg-gradient-to-r from-[#FC3F1D]/15 to-[#FC3F1D]/5 text-[#C4300F]'
+              ? 'bg-gradient-to-r from-[#FFB800]/20 to-[#FFB800]/5 text-[#A07800]'
               : 'hover:bg-[#F9F9F9]'
           "
           @click="deliveryType = 'yandex'"
         >
           <div
             class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
-            :class="deliveryType === 'yandex' ? 'border-[#FC3F1D] bg-[#FC3F1D]' : 'border-[#CCC]'"
+            :class="deliveryType === 'yandex' ? 'border-[#FFB800] bg-[#FFB800]' : 'border-[#CCC]'"
           >
             <div v-if="deliveryType === 'yandex'" class="w-2.5 h-2.5 rounded-full bg-white" />
           </div>
           <div class="text-left">
             <p class="text-[15px] font-semibold">Яндекс Маркет</p>
-            <p class="text-[13px] mt-0.5" :class="deliveryType === 'yandex' ? 'text-[#FC3F1D]/60' : 'text-[#999]'">
+            <p class="text-[13px] mt-0.5" :class="deliveryType === 'yandex' ? 'text-[#FFB800]/80' : 'text-[#999]'">
               Доставка до пункта выдачи
             </p>
           </div>
         </button>
       </div>
 
-      <div class="border border-[#ECECEC] rounded-[20px] overflow-hidden bg-white divide-y divide-[#F0F0F0]">
+      <div class="border border-[#D8D8D8] rounded-[20px] overflow-hidden bg-white divide-y divide-[#ECECEC]">
         <div class="px-5 py-4">
-          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">Адрес ПВЗ</label>
+          <label class="text-[12px] font-semibold text-[#666] uppercase tracking-wide">Адрес ПВЗ</label>
           <input
             v-model="address"
             type="text"
-            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC]"
+            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#AAAAAA]"
             placeholder="Введите адрес пункта выдачи"
           />
         </div>
 
         <div class="px-5 py-4">
-          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">ФИО</label>
+          <label class="text-[12px] font-semibold text-[#666] uppercase tracking-wide">ФИО</label>
           <input
             v-model="fio"
             type="text"
-            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC]"
+            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#AAAAAA]"
             placeholder="Иванов Иван Иванович"
           />
         </div>
 
         <div class="px-5 py-4">
-          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">Телефон</label>
+          <label class="text-[12px] font-semibold text-[#666] uppercase tracking-wide">Телефон</label>
           <input
             v-model="phone"
             @input="formatPhone"
             @keydown="handleKeydown"
             type="tel"
             inputmode="numeric"
-            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC]"
+            class="w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#AAAAAA]"
             placeholder="+7 (___) ___ __-__"
           />
         </div>
 
         <div class="px-5 py-4">
-          <label class="text-[12px] font-semibold text-[#999] uppercase tracking-wide">
+          <label class="text-[12px] font-semibold text-[#666] uppercase tracking-wide">
             Комментарий <span class="normal-case font-normal text-[#BBB]">— необязательно</span>
           </label>
           <textarea
             v-model="comment"
-            class="h-[150px] w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#CCC] resize-none"
+            class="h-[150px] w-full mt-1 bg-transparent focus:outline-none text-[15px] placeholder:text-[#AAAAAA] resize-none"
             placeholder="Например: позвонить за час до доставки"
             rows="2"
           />
@@ -264,12 +262,24 @@ const formatPhone = (e: Event) => {
 
 const handleKeydown = (e: KeyboardEvent) => {
   if (e.key !== 'Backspace') return;
+  const digits = getDigits(phone.value);
+  if (digits.length === 0) {
+    phone.value = '';
+    return;
+  }
+  // Удаляем последнюю цифру и переформатируем
+  const newDigits = digits.slice(0, -1);
+  phone.value = applyFormat(newDigits);
+  e.preventDefault();
+  nextTick(() => {
+    const input = e.target as HTMLInputElement;
+    input.setSelectionRange(phone.value.length, phone.value.length);
+  });
 };
 
 const nextStep = async () => {
   show();
   try {
-    // Отправляем только use_bonus, бэк сам рассчитает
     await createOrder({
       delivery_type: deliveryType.value,
       address: address.value,
