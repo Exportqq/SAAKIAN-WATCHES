@@ -49,11 +49,92 @@
 
         <!-- Desktop -->
         <div class="mt-[40px] hidden md:flex items-center gap-4">
-          <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center gap-[38px]">
+          <!-- Товар уже в корзине — WB-стиль -->
+          <div
+            v-if="basketQuantity > 0"
+            class="h-[52px] px-5 bg-[#000] rounded-[62px] flex justify-between items-center gap-[38px] min-w-[320px]"
+          >
             <button
               class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
-              @click="decreaseQuantity"
+              @click="removeOneFromBasket"
             >
+              <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain invert" />
+            </button>
+
+            <div class="flex flex-col items-center">
+              <span class="text-white text-[20px] font-semibold leading-none">{{ basketQuantity }}</span>
+              <span class="text-white text-[11px] leading-none mt-[2px]">В корзине</span>
+            </div>
+
+            <button
+              class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
+              @click="addOneToBasket"
+            >
+              <img src="/icons/plus.svg" alt="plus" class="w-full h-full object-contain invert" />
+            </button>
+          </div>
+
+          <!-- Товара нет в корзине — обычный вид -->
+          <template v-else>
+            <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center gap-[38px]">
+              <button
+                class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
+                @click="decreaseQuantity"
+              >
+                <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain" />
+              </button>
+
+              <span class="text-[20px] font-semibold min-w-[20px] text-center">
+                {{ quantity }}
+              </span>
+
+              <button
+                class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
+                @click="quantity++"
+              >
+                <img src="/icons/plus.svg" alt="plus" class="w-full h-full object-contain" />
+              </button>
+            </div>
+
+            <ButtonUI
+              :text="'В КОРЗИНУ'"
+              :max-width="true"
+              :rounded="62"
+              :paddingX="8"
+              :paddingY="10"
+              @click="addCurrentWatchToBasket"
+            />
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile фикс внизу -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#E5E5E5] px-4 py-3 z-50">
+      <div class="flex items-center gap-3">
+        <!-- Товар уже в корзине — WB-стиль -->
+        <div
+          v-if="basketQuantity > 0"
+          class="h-[52px] px-5 bg-[#000] rounded-[62px] flex items-center gap-[38px] flex-1"
+        >
+          <button class="w-[24px] h-[24px] flex items-center justify-center" @click="removeOneFromBasket">
+            <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain invert" />
+          </button>
+
+          <div class="flex flex-col items-center flex-1">
+            <span class="text-white text-[20px] font-semibold leading-none">{{ basketQuantity }}</span>
+            <span class="text-white text-[11px] leading-none mt-[2px]">В корзине</span>
+          </div>
+
+          <button class="w-[24px] h-[24px] flex items-center justify-center" @click="addOneToBasket">
+            <img src="/icons/plus.svg" alt="plus" class="w-full h-full object-contain invert" />
+          </button>
+        </div>
+
+        <!-- Товара нет в корзине — обычный вид -->
+        <template v-else>
+          <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center justify-between min-w-[130px]">
+            <button class="w-[24px] h-[24px] flex items-center justify-center" @click="decreaseQuantity">
               <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain" />
             </button>
 
@@ -61,52 +142,22 @@
               {{ quantity }}
             </span>
 
-            <button
-              class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
-              @click="quantity++"
-            >
+            <button class="w-[24px] h-[24px] flex items-center justify-center" @click="quantity++">
               <img src="/icons/plus.svg" alt="plus" class="w-full h-full object-contain" />
             </button>
           </div>
 
-          <ButtonUI
-            :text="'В КОРЗИНУ'"
-            :max-width="true"
-            :rounded="62"
-            :paddingX="8"
-            :paddingY="10"
-            @click="addCurrentWatchToBasket"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-[#E5E5E5] px-4 py-3 z-50">
-      <div class="flex items-center gap-3">
-        <div class="h-[52px] px-5 bg-[#F0F0F0] rounded-[62px] flex items-center justify-between min-w-[130px]">
-          <button class="w-[24px] h-[24px] flex items-center justify-center" @click="decreaseQuantity">
-            <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain" />
-          </button>
-
-          <span class="text-[20px] font-semibold min-w-[20px] text-center">
-            {{ quantity }}
-          </span>
-
-          <button class="w-[24px] h-[24px] flex items-center justify-center" @click="quantity++">
-            <img src="/icons/plus.svg" alt="plus" class="w-full h-full object-contain" />
-          </button>
-        </div>
-
-        <div class="flex-1">
-          <ButtonUI
-            :text="'В КОРЗИНУ'"
-            :max-width="true"
-            :rounded="62"
-            :paddingX="20"
-            :paddingY="13.4"
-            @click="addCurrentWatchToBasket"
-          />
-        </div>
+          <div class="flex-1">
+            <ButtonUI
+              :text="'В КОРЗИНУ'"
+              :max-width="true"
+              :rounded="62"
+              :paddingX="20"
+              :paddingY="13.4"
+              @click="addCurrentWatchToBasket"
+            />
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -137,13 +188,14 @@ import DesktopHeader from '../Header/DesktopHeader.vue';
 const route = useRoute();
 
 const { currentWatch, getWatchById, watchesLoading } = useWatch();
-const { addToBasket } = useBasket();
+const { addToBasket, removeFromBasket, basket } = useBasket();
 const { show, hide } = useGlobalLoader();
 
 const API_URL = 'https://watches-api-c9i5.onrender.com';
 
 const activeImage = ref(0);
 const quantity = ref(1);
+const basketQuantity = ref(0);
 
 // popup state
 const popupVisible = ref(false);
@@ -166,14 +218,21 @@ const normalizeImage = (path?: string) => {
   return `${API_URL}${path}`;
 };
 
+// Синхронизируем basketQuantity с текущей корзиной
+const syncBasketQuantity = () => {
+  if (!currentWatch.value) return;
+  const item = basket.value?.find((i: any) => i.custom_id === currentWatch.value!.custom_id);
+  basketQuantity.value = item?.quantity ?? 0;
+};
+
+// Первое добавление в корзину
 const addCurrentWatchToBasket = async () => {
   if (!currentWatch.value) return;
 
   try {
     show();
-
     await addToBasket(currentWatch.value.custom_id, quantity.value);
-
+    basketQuantity.value = quantity.value;
     showPopup('Товар добавлен в корзину', 'success');
   } catch (e) {
     console.error(e);
@@ -183,10 +242,43 @@ const addCurrentWatchToBasket = async () => {
   }
 };
 
+// +1 к уже добавленному товару
+const addOneToBasket = async () => {
+  if (!currentWatch.value) return;
+
+  try {
+    show();
+    await addToBasket(currentWatch.value.custom_id, 1);
+    basketQuantity.value++;
+  } catch (e) {
+    console.error(e);
+    showPopup('Ошибка', 'error');
+  } finally {
+    hide();
+  }
+};
+
+// −1 из корзины
+const removeOneFromBasket = async () => {
+  if (!currentWatch.value) return;
+
+  try {
+    show();
+    await removeFromBasket(currentWatch.value.custom_id, 1);
+    basketQuantity.value = Math.max(0, basketQuantity.value - 1);
+  } catch (e) {
+    console.error(e);
+    showPopup('Ошибка', 'error');
+  } finally {
+    hide();
+  }
+};
+
 onMounted(async () => {
   try {
     show();
     await getWatchById(route.params.id as string);
+    syncBasketQuantity();
   } finally {
     hide();
   }
