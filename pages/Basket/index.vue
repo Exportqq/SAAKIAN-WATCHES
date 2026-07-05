@@ -168,7 +168,7 @@ const popupType = ref<'success' | 'error' | 'warning'>('success');
 const isLoadingPreview = ref(false);
 const previewData = ref<any>(null);
 
-const API_URL = 'https://watches-api-c9i5.onrender.com';
+const API_URL = 'https://saakianwatches-lilexport.amvera.io';
 
 const normalizeImage = (path?: string) => {
   if (!path) return '/watch.png';

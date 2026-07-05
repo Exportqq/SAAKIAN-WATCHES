@@ -1,6 +1,6 @@
 // src/composables/useAdminAuth.ts
 
-const API_URL = 'https://watches-api-c9i5.onrender.com';
+const API_URL = 'https://saakianwatches-lilexport.amvera.io';
 
 export const useAdminAuth = () => {
   const getRole = (): string | null => {

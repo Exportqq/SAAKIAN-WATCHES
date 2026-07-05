@@ -191,7 +191,7 @@ const { currentWatch, getWatchById, watchesLoading } = useWatch();
 const { addToBasket, removeFromBasket, basket } = useBasket();
 const { show, hide } = useGlobalLoader();
 
-const API_URL = 'https://watches-api-c9i5.onrender.com';
+const API_URL = 'https://saakianwatches-lilexport.amvera.io';
 
 const activeImage = ref(0);
 const quantity = ref(1);

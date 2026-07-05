@@ -20,27 +20,27 @@ export const globalRouting = () => {
   };
 
   const redirectBasket = () => {
-    router.push('/Basket/Basket');
+    router.push('/Basket');
   };
 
   const redirectCatalog = () => {
-    router.push('/Catalog/Catalog');
+    router.push('/Catalog');
   };
 
   const redirectProfile = () => {
-    router.push('/Profile/Profile');
+    router.push('/Profile');
   };
 
   const redirectAuth = () => {
-    router.push('/Auth/Auth');
+    router.push('/Auth');
   };
 
   const redirectHome = () => {
-    router.push('/Home/Home');
+    router.push('/Home');
   };
 
   const redirectAdmin = () => {
-    router.push('/Admin/Admin');
+    router.push('/Admin');
   };
 
   const redirectOrder = () => {

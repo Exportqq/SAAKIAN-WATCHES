@@ -180,7 +180,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
-const API_URL = 'https://watches-api-c9i5.onrender.com';
+const API_URL = 'https://saakianwatches-lilexport.amvera.io';
 
 const router = useRouter();
 const { show, hide } = useGlobalLoader();

@@ -24,7 +24,7 @@ const showPopup = (message: string, type: 'success' | 'error' | 'warning' = 'suc
 const getImageUrl = (path?: string) => {
   if (!path) return '/watch.png';
   if (path.startsWith('http')) return path;
-  return `https://watches-api-c9i5.onrender.com${path}`;
+  return `https://saakianwatches-lilexport.amvera.io${path}`;
 };
 
 const isInBasket = computed(() => {

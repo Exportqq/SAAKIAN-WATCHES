@@ -12,7 +12,7 @@ export const useApi = () => {
 
     try {
       return await $fetch<T>(url, {
-        baseURL: 'https://watches-api-c9i5.onrender.com',
+        baseURL: 'https://saakianwatches-lilexport.amvera.io',
         method: options.method ?? 'GET',
         body: options.body,
         headers: {
