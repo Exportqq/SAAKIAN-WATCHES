@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useBasket } from '../composables/AddBasket';
 import type { Watch } from '../composables/GetWatch';
 
@@ -31,6 +31,10 @@ const isInBasket = computed(() => {
   return basket.value.some((item: any) => item.watch.custom_id === props.watch.custom_id);
 });
 
+const displayName = computed(() => {
+  return props.watch.title.replace(/^наручные\s+часы\s+/i, '').trim();
+});
+
 const addBasketHandler = async (e: Event) => {
   e.preventDefault();
   e.stopPropagation();
@@ -46,7 +50,7 @@ const addBasketHandler = async (e: Event) => {
       showPopup('Товар добавлен в корзину', 'success');
     }
 
-    await getBasket(); // 🔥 обновляем состояние корзины
+    await getBasket();
   } catch {
     showPopup('Произошла ошибка', 'error');
   } finally {
@@ -56,26 +60,32 @@ const addBasketHandler = async (e: Event) => {
 </script>
 
 <template>
-  <NuxtLink :to="`/watch/${watch.id}`" class="w-full block">
-    <div class="bg-[#F0EEED] w-full aspect-square flex items-center justify-center">
-      <img :src="getImageUrl(watch.images?.[0])" class="w-full h-full object-contain" />
+  <NuxtLink :to="`/watch/${watch.id}`" class="watch-card block">
+    <div class="watch-photo-bg w-full aspect-square flex items-center justify-center rounded-[20px]">
+      <img :src="getImageUrl(watch.images?.[0])" class="w-full h-full object-contain p-6" />
     </div>
 
-    <div class="flex justify-between items-center px-4 mt-[clamp(10px,1.2vw,16px)]">
-      <div>
-        <h1 class="text-black font-medium text-[clamp(14px,1.2vw,20px)] leading-[16px]">
-          {{ watch.title }}
-        </h1>
-
-        <h2 class="text-black font-bold text-[clamp(14px,1.2vw,20px)]">{{ watch.price.toLocaleString() }} ₽</h2>
+    <div class="mt-[16px] flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <span class="watch-name block text-[11px] tracking-[0.14em] uppercase text-[#9C9C96] truncate">
+          {{ displayName }}
+        </span>
+        <span class="mono block text-[17px] font-semibold text-[#151413] mt-[6px]">
+          {{ watch.price.toLocaleString() }} ₽
+        </span>
       </div>
 
-      <img
+      <button
+        class="fab shrink-0 w-[34px] h-[34px] rounded-full flex items-center justify-center"
+        :class="isInBasket ? 'fab-active' : ''"
         @click="addBasketHandler"
-        :src="isInBasket ? '/icons/trash.svg' : '/icons/basket_add.svg'"
-        class="w-[clamp(24px,2vw,32px)] h-[clamp(24px,2vw,32px)] cursor-pointer"
-      />
+        aria-label="В корзину"
+      >
+        <img :src="isInBasket ? '/icons/trash.svg' : '/icons/basket_add.svg'" class="w-[42%] h-[42%] object-contain" />
+      </button>
     </div>
+
+    <span class="accent-line block h-[1px] mt-[12px]" />
   </NuxtLink>
 
   <PopupUI
@@ -86,3 +96,31 @@ const addBasketHandler = async (e: Event) => {
     @close="popupVisible = false"
   />
 </template>
+
+<style scoped>
+.watch-photo-bg {
+  background: #f5f3ee;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+.watch-name {
+  font-family: 'Inter', sans-serif;
+}
+
+.fab {
+  background: #f5f4f1;
+}
+.fab-active {
+  background: #151413;
+}
+.fab-active img {
+  filter: invert(1);
+}
+
+.accent-line {
+  width: 22px;
+  background: #c9a24b;
+}
+</style>
