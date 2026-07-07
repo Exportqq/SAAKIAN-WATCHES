@@ -1,6 +1,13 @@
 <template>
   <DesktopHeader />
 
+  <OrderSuccessScreen
+    :show="orderSuccessVisible"
+    :duration="10000"
+    :order-number="lastOrderId"
+    @complete="handleSuccessComplete"
+  />
+
   <div class="px-4 flex justify-center mt-[40px] pb-[100px]">
     <div class="w-full max-w-[560px] space-y-4">
       <div class="mb-2">
@@ -204,6 +211,7 @@ import { useBonusState } from '~/src/composables/useBonusState';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import { useOrder } from '~/src/composables/useOrder.js';
 import ButtonUI from '~/src/UI/ButtonUI.vue';
+import OrderSuccessScreen from '~/src/UI/OrderSuccessScreen.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
@@ -218,6 +226,9 @@ const pdModal = ref(false);
 const popupVisible = ref(false);
 const popupMessage = ref('');
 const popupType = ref<'success' | 'error' | 'warning'>('success');
+
+const orderSuccessVisible = ref(false);
+const lastOrderId = ref('');
 
 const { basket } = useBasket();
 const { createOrder } = useOrder();
@@ -280,7 +291,7 @@ const handleKeydown = (e: KeyboardEvent) => {
 const nextStep = async () => {
   show();
   try {
-    await createOrder({
+    const order = await createOrder({
       delivery_type: deliveryType.value,
       address: address.value,
       phone: phone.value,
@@ -289,13 +300,11 @@ const nextStep = async () => {
       use_bonus: useBonusToggle.value,
     });
 
-    popupMessage.value = 'Заказ успешно создан!';
-    popupType.value = 'success';
-    popupVisible.value = true;
+    lastOrderId.value = order?.id ? String(order.id).slice(0, 8).toUpperCase() : '';
 
-    setTimeout(() => {
-      redirectOrder?.();
-    }, 1000);
+    // Полноэкранный экран успеха сам держит себя 10 секунд и сообщает,
+    // когда пора уводить пользователя дальше
+    orderSuccessVisible.value = true;
   } catch (e: any) {
     popupMessage.value = e?.message || 'Ошибка при создании заказа';
     popupType.value = 'error';
@@ -303,6 +312,11 @@ const nextStep = async () => {
   } finally {
     hide();
   }
+};
+
+const handleSuccessComplete = () => {
+  orderSuccessVisible.value = false;
+  redirectOrder?.();
 };
 </script>
 

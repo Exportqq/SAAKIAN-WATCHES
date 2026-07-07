@@ -1,5 +1,6 @@
 // composables/useAuth.ts
 import { ref } from 'vue';
+import { useBasket } from './AddBasket';
 import { useApi } from './useApi';
 
 interface IUser {
@@ -57,6 +58,10 @@ export const useAuth = () => {
         localStorage.setItem('token', res.token); // было res.access_token
         localStorage.setItem('user', JSON.stringify(res.user));
       }
+
+      // Переносим товары, добавленные в корзину до входа, на сервер
+      const { mergeGuestBasket } = useBasket();
+      await mergeGuestBasket();
 
       return res.user;
     } catch (e: any) {

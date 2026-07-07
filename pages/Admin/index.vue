@@ -270,7 +270,7 @@ const bulkDelete = async () => {
 
 const fetchOrders = async () => {
   const res = await fetch(`${API_URL}/admin/orders`, { headers: authHeaders() });
-  if (!res.ok) router.push('/Auth/Auth');
+  if (!res.ok) router.push('/Auth');
   orders.value = await res.json();
 };
 
@@ -325,7 +325,7 @@ const formatDate = (d: string) =>
 
 const logout = () => {
   localStorage.removeItem('token');
-  router.push('/Auth/Auth');
+  router.push('/Auth');
 };
 
 onMounted(async () => {

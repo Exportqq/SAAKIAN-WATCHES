@@ -134,6 +134,13 @@
     <div v-else class="text-[22px] text-[#666]">Корзина пустая</div>
   </div>
 
+  <AuthRequiredModal
+    :show="authModalVisible"
+    @close="authModalVisible = false"
+    @login="goToAuth"
+    @guest="continueAsGuest"
+  />
+
   <PopupUI
     :message="popupMessage"
     :type="popupType"
@@ -145,12 +152,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal';
+import { useAuth } from '~/src/composables/useAuth';
 import { useBonus } from '~/src/composables/useBonus';
 import { useBonusState } from '~/src/composables/useBonusState';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import useWindowSizes from '~/src/composables/window_size.js';
+import AuthRequiredModal from '~/src/UI/AuthRequiredModal.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import DesktopHeader from '../Header/DesktopHeader.vue';
 
@@ -160,6 +170,8 @@ const { redirectDelivery } = globalRouting();
 const { isMobile } = useWindowSizes();
 const { bonus, fetchBonus } = useBonus();
 const { useBonusToggle, toggleBonus } = useBonusState();
+const { user, init: initAuth } = useAuth();
+const router = useRouter();
 
 const popupVisible = ref(false);
 const popupMessage = ref('');
@@ -168,6 +180,8 @@ const popupType = ref<'success' | 'error' | 'warning'>('success');
 const isLoadingPreview = ref(false);
 const previewData = ref<any>(null);
 
+const authModalVisible = ref(false);
+
 const API_URL = 'https://saakianwatches-lilexport.amvera.io';
 
 const normalizeImage = (path?: string) => {
@@ -175,6 +189,12 @@ const normalizeImage = (path?: string) => {
   if (path.startsWith('http')) return path;
   return `${API_URL}${path}`;
 };
+
+const isAuthenticated = computed(() => {
+  if (user.value) return true;
+  if (import.meta.client) return !!localStorage.getItem('token');
+  return false;
+});
 
 const bonusBalance = computed(() => bonus.value?.balance ?? 0);
 
@@ -275,15 +295,40 @@ const remove = async (id: string) => {
   }
 };
 
+// Если пользователь не авторизован — показываем модалку вместо перехода к оформлению
 const goNext = () => {
+  if (!isAuthenticated.value) {
+    authModalVisible.value = true;
+    return;
+  }
+  redirectDelivery?.();
+};
+
+const goToAuth = () => {
+  authModalVisible.value = false;
+  router.push('/auth');
+};
+
+// Оформление заказа без регистрации — бонусы копиться не будут,
+// т.к. они привязаны к аккаунту пользователя
+const continueAsGuest = () => {
+  authModalVisible.value = false;
   redirectDelivery?.();
 };
 
 onMounted(async () => {
+  initAuth();
+
   show();
   try {
-    await Promise.all([getBasket(), fetchBonus()]);
-    await fetchPreview();
+    // getBasket теперь сам умеет работать и как гость (localStorage),
+    // и как авторизованный пользователь (сервер)
+    await getBasket();
+
+    if (isAuthenticated.value) {
+      await fetchBonus();
+      await fetchPreview();
+    }
   } finally {
     hide();
   }
