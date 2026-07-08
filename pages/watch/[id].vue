@@ -120,7 +120,7 @@
           </div>
 
           <template v-else>
-            <div class="h-[56px] px-5 bg-[#F5F4F1] rounded-[62px] flex items-center gap-[38px]">
+            <div class="h-[56px] px-5 bg-[#F7F7F7] rounded-[62px] flex items-center gap-[38px]">
               <button
                 class="w-[24px] h-[24px] flex items-center justify-center transition-all cursor-pointer"
                 @click="decreaseQuantity"
@@ -176,7 +176,7 @@
       </div>
 
       <template v-else>
-        <div class="h-[52px] px-5 bg-[#F5F4F1] rounded-[62px] flex items-center justify-between min-w-[130px]">
+        <div class="h-[52px] px-5 bg-[#F7F7F7] rounded-[62px] flex items-center justify-between min-w-[130px]">
           <button class="w-[24px] h-[24px] flex items-center justify-center" @click="decreaseQuantity">
             <img src="/icons/minus.svg" alt="minus" class="w-full h-full object-contain" />
           </button>
@@ -354,7 +354,7 @@ onMounted(async () => {
     width 0.25s ease;
 }
 .thumb-indicator-active {
-  background: #c9a24b;
+  background: #000;
   width: 32px;
 }
 
