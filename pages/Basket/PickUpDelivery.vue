@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <OrderSuccessScreen
     :show="orderSuccessVisible"
@@ -213,7 +213,7 @@ import { useOrder } from '~/src/composables/useOrder.js';
 import ButtonUI from '~/src/UI/ButtonUI.vue';
 import OrderSuccessScreen from '~/src/UI/OrderSuccessScreen.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
-import DesktopHeader from '../Header/DesktopHeader.vue';
+import Header from '../header/header.vue';
 
 const deliveryType = ref<'cdek' | 'yandex'>('cdek');
 const address = ref('');

@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <div class="max-w-[1400px] mx-auto px-4 py-10 pb-[120px]">
     <div class="flex items-center justify-between max-md:flex-row">
@@ -83,11 +83,14 @@
 
         <div class="mt-6 space-y-4 flex-1 overflow-y-auto">
           <input v-model="search" placeholder="Поиск" class="input" />
+
           <input v-model.number="minPrice" placeholder="Минимальная цена" class="input" />
+
           <input v-model.number="maxPrice" placeholder="Максимальная цена" class="input" />
 
           <div v-if="availableBrands.length">
             <p class="text-[13px] font-semibold text-[#999] uppercase tracking-wide mb-2 px-1">Бренд</p>
+
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="brand in availableBrands"
@@ -113,10 +116,8 @@
           >
             Найти
           </button>
-          <button
-            @click="resetFilters"
-            class="w-full mt-3 h-[52px] bg-[#F3F3F3] text-black rounded-full font-semibold"
-          >
+
+          <button @click="resetFilters" class="w-full mt-3 h-[52px] bg-[#F3F3F3] text-black rounded-full font-semibold">
             Сбросить
           </button>
         </div>
@@ -124,64 +125,101 @@
     </div>
 
     <div class="grid grid-cols-4 max-md:grid-cols-2 gap-[16px] mt-6">
-      <WatchCard v-for="watch in filteredWatches" :key="watch.custom_id" :watch="watch" />
+      <WatchCard v-for="watch in watches" :key="watch.custom_id" :watch="watch" />
     </div>
+
+    <div ref="loadMoreTrigger" class="h-10" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue';
-import { useWatch } from '~/src/composables/GetWatch';
-import WatchCard from '~/src/UI/WatchCard.vue';
-import DesktopHeader from '../Header/DesktopHeader.vue';
+import { computed, nextTick, ref } from 'vue';
 
-const { getWatches, watches } = useWatch();
+import { useWatch } from '~/src/composables/GetWatch';
+import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
+
+import WatchCard from '~/src/UI/WatchCard.vue';
+import Header from '../header/header.vue';
+
+const { getWatches, loadMoreWatches, watches, watchesHasMore, watchesLoadingMore } = useWatch();
+
+const { show, hide } = useGlobalLoader();
 
 const search = ref('');
 const minPrice = ref<number | null>(null);
 const maxPrice = ref<number | null>(null);
+
 const selectedBrands = ref<string[]>([]);
 
 const filtersOpen = ref(false);
 const sheetOpen = ref(false);
 
+const loadMoreTrigger = ref<HTMLElement | null>(null);
+
+let observer: IntersectionObserver | null = null;
+
 const availableBrands = computed(() => {
   const brands = watches.value.map((w) => w.brand).filter(Boolean);
+
   return [...new Set(brands)].sort();
 });
 
-const filteredWatches = computed(() => {
-  if (!selectedBrands.value.length) return watches.value;
-  return watches.value.filter((w) => selectedBrands.value.includes(w.brand));
-});
-
 const toggleBrand = (brand: string) => {
-  const idx = selectedBrands.value.indexOf(brand);
-  if (idx === -1) selectedBrands.value.push(brand);
-  else selectedBrands.value.splice(idx, 1);
+  const index = selectedBrands.value.indexOf(brand);
+
+  if (index === -1) {
+    selectedBrands.value.push(brand);
+  } else {
+    selectedBrands.value.splice(index, 1);
+  }
 };
 
-onMounted(() => {
-  applyFilters();
+const currentFilters = () => ({
+  search: search.value || undefined,
+  minPrice: minPrice.value || undefined,
+  maxPrice: maxPrice.value || undefined,
+  brands: selectedBrands.value,
 });
 
 const applyFilters = async () => {
-  await getWatches({
-    search: search.value || undefined,
-    minPrice: minPrice.value || undefined,
-    maxPrice: maxPrice.value || undefined,
-  });
+  show();
+
+  try {
+    await getWatches(currentFilters(), 16);
+  } finally {
+    hide();
+  }
+};
+
+const loadMore = async () => {
+  if (watchesLoadingMore.value) return;
+  if (!watchesHasMore.value) return;
+
+  show();
+
+  try {
+    await loadMoreWatches(currentFilters(), 16);
+  } finally {
+    hide();
+  }
 };
 
 const openFilters = async () => {
   filtersOpen.value = true;
+
   await nextTick();
-  requestAnimationFrame(() => (sheetOpen.value = true));
+
+  requestAnimationFrame(() => {
+    sheetOpen.value = true;
+  });
 };
 
 const closeFilters = () => {
   sheetOpen.value = false;
-  setTimeout(() => (filtersOpen.value = false), 300);
+
+  setTimeout(() => {
+    filtersOpen.value = false;
+  }, 300);
 };
 
 const submitMobile = async () => {
@@ -194,8 +232,37 @@ const resetFilters = async () => {
   minPrice.value = null;
   maxPrice.value = null;
   selectedBrands.value = [];
+
   await applyFilters();
 };
+
+onMounted(async () => {
+  await applyFilters();
+
+  observer = new IntersectionObserver(
+    async (entries) => {
+      const entry = entries[0];
+
+      if (!entry) return;
+      if (!entry.isIntersecting) return;
+
+      await loadMore();
+    },
+    {
+      root: null,
+      rootMargin: '400px',
+      threshold: 0,
+    },
+  );
+
+  if (loadMoreTrigger.value) {
+    observer.observe(loadMoreTrigger.value);
+  }
+});
+
+onUnmounted(() => {
+  observer?.disconnect();
+});
 </script>
 
 <style scoped>

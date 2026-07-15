@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <div class="max-w-[1000px] mx-auto px-4 py-10">
     <h1 class="text-[32px] font-bold mb-8">Мои заказы</h1>
@@ -116,7 +116,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import { useOrder } from '~/src/composables/useOrder';
-import DesktopHeader from '../Header/DesktopHeader.vue';
+import Header from '../header/header.vue';
 
 const { getMyOrders } = useOrder();
 const { show, hide } = useGlobalLoader();

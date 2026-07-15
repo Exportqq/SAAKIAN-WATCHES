@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <header />
 
   <section class="px-[100px] max-md:px-[20px] py-[80px] max-md:pt-[50px] max-md:pb-[20px]">
     <div class="max-w-[1400px] mx-auto">
@@ -88,7 +88,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import DesktopHeader from '~/pages/Header/DesktopHeader.vue';
 import Contacts from '../Contacts.vue';
 
 const openIndex = ref<number | null>(0);

@@ -27,6 +27,10 @@ export const globalRouting = () => {
     router.push('/Catalog');
   };
 
+  const redirectAboutUs = () => {
+    router.push('/about-us');
+  };
+
   const redirectProfile = () => {
     router.push('/Profile');
   };
@@ -76,5 +80,6 @@ export const globalRouting = () => {
     redirectDeliveryInfo,
     redirectPrivacyPolicy,
     redirectReturnPolicy,
+    redirectAboutUs,
   };
 };

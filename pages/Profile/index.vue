@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <div class="min-h-[400px] px-4 pt-[40px] flex justify-center">
     <div
@@ -149,12 +149,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import DesktopHeader from '../Header/DesktopHeader.vue';
-
 import { globalRouting } from '~/src/composables/globbal';
 import { useAuth } from '~/src/composables/useAuth';
 import { useBonus } from '~/src/composables/useBonus';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
+import Header from '../header/header.vue';
 
 const { getMe, logout } = useAuth();
 const { show, hide } = useGlobalLoader();

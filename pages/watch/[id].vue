@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <div v-if="watchesLoading" class="watch-page min-h-[60vh] flex items-center justify-center">
     <div class="flex flex-col items-center gap-3">
@@ -213,7 +213,7 @@ import { useWatch } from '~/src/composables/GetWatch';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
-import DesktopHeader from '../Header/DesktopHeader.vue';
+import Header from '../header/header.vue';
 
 const route = useRoute();
 

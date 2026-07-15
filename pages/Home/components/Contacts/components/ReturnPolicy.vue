@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <section class="px-[100px] max-md:px-[20px] py-[80px] max-md:pt-[50px] max-md:pb-[20px]">
     <div class="max-w-[1400px] mx-auto">
@@ -143,7 +143,7 @@
 </template>
 
 <script setup lang="ts">
-import DesktopHeader from '~/pages/Header/DesktopHeader.vue';
+import Header from '~/pages/header/header.vue';
 import Contacts from '../Contacts.vue';
 
 const canReturn = [

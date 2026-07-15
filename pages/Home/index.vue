@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <Greetings />
 
@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import DesktopHeader from '../Header/DesktopHeader.vue';
+import Header from '../header/header.vue';
 import Contacts from './components/Contacts/Contacts.vue';
 import Greetings from './components/Greetings.vue';
 import NewCollection from './components/NewCollection.vue';

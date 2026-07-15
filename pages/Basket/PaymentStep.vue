@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <div class="px-4 flex justify-center mt-[40px] pb-[100px]">
     <div class="w-full max-w-[650px] bg-white border rounded-[28px] p-8 space-y-6">
@@ -29,7 +29,7 @@ import { computed, ref } from 'vue';
 import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal';
 import { useApi } from '~/src/composables/useApi';
-import DesktopHeader from '../Header/DesktopHeader.vue';
+import Header from '../header/header.vue';
 
 const { basket } = useBasket();
 const { request } = useApi();

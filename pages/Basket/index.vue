@@ -1,5 +1,5 @@
 <template>
-  <DesktopHeader />
+  <Header />
 
   <div class="max-w-[1400px] mx-auto px-4 py-10 pb-[90px] md:pb-10">
     <h1 class="text-[42px] font-extrabold mb-10">Корзина</h1>
@@ -162,7 +162,7 @@ import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import useWindowSizes from '~/src/composables/window_size.js';
 import AuthRequiredModal from '~/src/UI/AuthRequiredModal.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
-import DesktopHeader from '../Header/DesktopHeader.vue';
+import Header from '../header/header.vue';
 
 const { basket, getBasket, addToBasket, removeFromBasket } = useBasket();
 const { show, hide } = useGlobalLoader();
