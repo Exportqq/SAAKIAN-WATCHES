@@ -128,12 +128,18 @@
       <WatchCard v-for="watch in watches" :key="watch.custom_id" :watch="watch" />
     </div>
 
-    <div ref="loadMoreTrigger" class="h-10" />
+    <!-- Лоадер под товарами -->
+    <div v-if="watchesLoadingMore" class="flex justify-center py-8">
+      <div class="w-8 h-8 rounded-full border-4 border-[#E5E5E5] border-t-black animate-spin" />
+    </div>
+
+    <!-- Триггер для загрузки следующей страницы -->
+    <div ref="loadMoreTrigger" class="h-2" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 
 import { useWatch } from '~/src/composables/GetWatch';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
@@ -195,13 +201,7 @@ const loadMore = async () => {
   if (watchesLoadingMore.value) return;
   if (!watchesHasMore.value) return;
 
-  show();
-
-  try {
-    await loadMoreWatches(currentFilters(), 16);
-  } finally {
-    hide();
-  }
+  await loadMoreWatches(currentFilters(), 16);
 };
 
 const openFilters = async () => {
@@ -250,8 +250,7 @@ onMounted(async () => {
     },
     {
       root: null,
-      rootMargin: '400px',
-      threshold: 0,
+      threshold: 1,
     },
   );
 
