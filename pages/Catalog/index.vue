@@ -54,7 +54,10 @@
         </button>
       </div>
 
-      <div v-if="availableBrands.length" class="mt-4 flex flex-wrap gap-2">
+      <div v-if="brandsLoading" class="mt-4 flex flex-wrap gap-2">
+        <div v-for="i in 6" :key="i" class="h-[36px] w-[90px] rounded-full bg-[#F0F0F0] animate-pulse"></div>
+      </div>
+      <div v-else-if="availableBrands.length" class="mt-4 flex flex-wrap gap-2">
         <button
           v-for="brand in availableBrands"
           :key="brand"
@@ -68,6 +71,31 @@
         >
           {{ brand }}
         </button>
+      </div>
+
+      <div class="mt-5 flex justify-end relative">
+        <button
+          @click="sortOpen = !sortOpen"
+          class="h-[44px] px-[20px] rounded-full border border-[#ECECEC] bg-[#F7F7F7] text-black text-[14px] font-semibold flex items-center gap-[8px]"
+        >
+          {{ currentSortLabel }}
+          <span class="text-[10px] opacity-60 transition-transform" :class="sortOpen ? 'rotate-180' : ''">▼</span>
+        </button>
+
+        <div
+          v-if="sortOpen"
+          class="absolute top-[52px] right-0 bg-white rounded-[16px] shadow-lg border border-[#ECECEC] overflow-hidden z-20 w-[220px]"
+        >
+          <button
+            v-for="opt in sortOptions"
+            :key="opt.value"
+            @click="setSort(opt.value)"
+            class="w-full text-left px-[18px] py-[12px] text-[14px] hover:bg-[#F7F7F7] transition-colors"
+            :class="opt.value === selectedSort ? 'font-semibold bg-[#F7F7F7]' : ''"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -88,10 +116,13 @@
 
           <input v-model.number="maxPrice" placeholder="Максимальная цена" class="input" />
 
-          <div v-if="availableBrands.length">
+          <div>
             <p class="text-[13px] font-semibold text-[#999] uppercase tracking-wide mb-2 px-1">Бренд</p>
 
-            <div class="flex flex-wrap gap-2">
+            <div v-if="brandsLoading" class="flex flex-wrap gap-2">
+              <div v-for="i in 6" :key="i" class="h-[36px] w-[90px] rounded-full bg-[#F0F0F0] animate-pulse"></div>
+            </div>
+            <div v-else-if="availableBrands.length" class="flex flex-wrap gap-2">
               <button
                 v-for="brand in availableBrands"
                 :key="brand"
@@ -104,6 +135,21 @@
                 "
               >
                 {{ brand }}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-[13px] font-semibold text-[#999] uppercase tracking-wide mb-2 px-1">Сортировка</p>
+            <div class="flex flex-col gap-[6px]">
+              <button
+                v-for="opt in sortOptions"
+                :key="opt.value"
+                @click="setSort(opt.value)"
+                class="w-full text-left px-[16px] py-[12px] rounded-[14px] text-[14px]"
+                :class="opt.value === selectedSort ? 'bg-black text-white font-semibold' : 'bg-[#F7F7F7]'"
+              >
+                {{ opt.label }}
               </button>
             </div>
           </div>
@@ -128,6 +174,8 @@
       <WatchCard v-for="watch in watches" :key="watch.custom_id" :watch="watch" />
     </div>
 
+    <p v-if="!watchesLoadingMore && !watches.length" class="text-center text-[#888] py-[60px]">Ничего не найдено</p>
+
     <!-- Лоадер под товарами -->
     <div v-if="watchesLoadingMore" class="flex justify-center py-8">
       <div class="w-8 h-8 rounded-full border-4 border-[#E5E5E5] border-t-black animate-spin" />
@@ -141,13 +189,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
 
-import { useWatch } from '~/src/composables/GetWatch';
+import { useWatch, type WatchFilters, type WatchSort } from '~/src/composables/GetWatch';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
 import WatchCard from '~/src/UI/WatchCard.vue';
 import Header from '../header/header.vue';
 
-const { getWatches, loadMoreWatches, watches, watchesHasMore, watchesLoadingMore } = useWatch();
+const { getWatches, loadMoreWatches, getBrands, watches, watchesHasMore, watchesLoadingMore } = useWatch();
 
 const { show, hide } = useGlobalLoader();
 
@@ -157,6 +205,26 @@ const maxPrice = ref<number | null>(null);
 
 const selectedBrands = ref<string[]>([]);
 
+type SortValue = 'default' | WatchSort;
+
+const sortOptions: { value: SortValue; label: string }[] = [
+  { value: 'default', label: 'По умолчанию' },
+  { value: 'popular', label: 'Популярные модели' },
+  { value: 'price_asc', label: 'Сначала дешевле' },
+  { value: 'price_desc', label: 'Сначала дороже' },
+];
+
+const selectedSort = ref<SortValue>('default');
+const sortOpen = ref(false);
+
+const currentSortLabel = computed(() => sortOptions.find((o) => o.value === selectedSort.value)?.label ?? 'Сортировка');
+
+const setSort = async (value: SortValue) => {
+  selectedSort.value = value;
+  sortOpen.value = false;
+  await applyFilters();
+};
+
 const filtersOpen = ref(false);
 const sheetOpen = ref(false);
 
@@ -164,11 +232,25 @@ const loadMoreTrigger = ref<HTMLElement | null>(null);
 
 let observer: IntersectionObserver | null = null;
 
-const availableBrands = computed(() => {
-  const brands = watches.value.map((w) => w.brand).filter(Boolean);
+// --- Бренды больше НЕ считаются из уже загруженных карточек (watches.value) ---
+// Раньше availableBrands был computed(() => watches.value.map(w => w.brand)...),
+// из-за чего показывались только бренды из первой подгруженной страницы (напр. только Casio).
+// Теперь список брендов грузится отдельным запросом к /watches/meta/brands,
+// который возвращает ВСЕ уникальные бренды каталога, независимо от пагинации.
+const availableBrands = ref<string[]>([]);
+const brandsLoading = ref(false);
 
-  return [...new Set(brands)].sort();
-});
+const loadBrands = async () => {
+  brandsLoading.value = true;
+  try {
+    const brands = await getBrands();
+    availableBrands.value = [...new Set(brands ?? [])].sort();
+  } catch {
+    availableBrands.value = [];
+  } finally {
+    brandsLoading.value = false;
+  }
+};
 
 const toggleBrand = (brand: string) => {
   const index = selectedBrands.value.indexOf(brand);
@@ -180,11 +262,12 @@ const toggleBrand = (brand: string) => {
   }
 };
 
-const currentFilters = () => ({
+const currentFilters = (): WatchFilters => ({
   search: search.value || undefined,
   minPrice: minPrice.value || undefined,
   maxPrice: maxPrice.value || undefined,
   brands: selectedBrands.value,
+  sort: selectedSort.value !== 'default' ? selectedSort.value : undefined,
 });
 
 const applyFilters = async () => {
@@ -232,12 +315,13 @@ const resetFilters = async () => {
   minPrice.value = null;
   maxPrice.value = null;
   selectedBrands.value = [];
+  selectedSort.value = 'default';
 
   await applyFilters();
 };
 
 onMounted(async () => {
-  await applyFilters();
+  await Promise.all([loadBrands(), applyFilters()]);
 
   observer = new IntersectionObserver(
     async (entries) => {
@@ -257,6 +341,13 @@ onMounted(async () => {
   if (loadMoreTrigger.value) {
     observer.observe(loadMoreTrigger.value);
   }
+
+  window.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (sortOpen.value && !target.closest('button')) {
+      sortOpen.value = false;
+    }
+  });
 });
 
 onUnmounted(() => {

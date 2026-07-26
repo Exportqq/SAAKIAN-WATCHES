@@ -37,11 +37,14 @@ export interface WatchesPage {
   has_more: boolean;
 }
 
+export type WatchSort = 'price_asc' | 'price_desc' | 'popular';
+
 export interface WatchFilters {
   search?: string;
   minPrice?: number | null;
   maxPrice?: number | null;
   brands?: string[];
+  sort?: WatchSort;
 }
 
 export const watches = ref<Watch[]>([]);
@@ -71,6 +74,10 @@ const buildParams = (filters: WatchFilters | undefined, offset: number, limit: n
 
   if (filters?.brands?.length) {
     params.append('brands', filters.brands.join(','));
+  }
+
+  if (filters?.sort) {
+    params.append('sort', filters.sort);
   }
 
   params.append('offset', String(offset));
