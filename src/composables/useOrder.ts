@@ -1,5 +1,6 @@
 // src/composables/useOrder.ts
 import { useBasket } from './AddBasket';
+import { user } from './useAuth';
 import { useGlobalLoader } from './useGlobalLoader';
 
 const API_URL = 'https://saakianwatches-lilexport.amvera.io';
@@ -19,18 +20,6 @@ export const useOrder = () => {
     show();
 
     try {
-      const token = localStorage.getItem('token');
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-
-      // Не шлём заголовок вообще, если токена нет — иначе бэк получит
-      // буквально "Bearer null" и посчитает это невалидным токеном
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
       const body: Record<string, any> = {
         delivery_type: data.delivery_type,
         address: data.address,
@@ -40,26 +29,30 @@ export const useOrder = () => {
         use_bonus: data.use_bonus ?? false,
       };
 
-      // Гость: своей корзины на сервере нет — передаём позиции прямо в запросе
-      if (!token) {
+      // Бэкенд не проверяет Authorization-заголовок — единственный способ
+      // связать заказ с пользователем это передать user_id прямо в теле.
+      // Именно из-за отсутствия этого поля бонусы не начислялись:
+      // заказ уходил "гостевым" (order.user_id = null), и бэкенд
+      // физически не мог найти пользователя для начисления бонуса.
+      if (user.value?.id) {
+        body.user_id = user.value.id;
+      } else {
+        // Гость — своей серверной корзины нет, передаём позиции прямо в запросе
         body.items = basket.value.map((item) => ({
           custom_id: item.watch.custom_id,
           quantity: item.quantity,
         }));
       }
 
-      // Для отладки - выведи что отправляется
       console.log('Creating order with data:', body);
 
       const res = await fetch(`${API_URL}/orders`, {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
 
       const result = await res.json();
-
-      // Для отладки - что вернул бэк
       console.log('Order created:', result);
 
       if (!res.ok) {
@@ -67,11 +60,10 @@ export const useOrder = () => {
         throw new Error(result?.detail || 'Ошибка создания заказа');
       }
 
-      // После гостевого заказа локальная корзина больше не нужна — очищаем
-      if (!token && import.meta.client) {
+      if (!user.value?.id && typeof window !== 'undefined') {
         localStorage.removeItem('guest_cart_v1');
-        basket.value = [];
       }
+      basket.value = [];
 
       return result;
     } catch (e) {
@@ -86,19 +78,12 @@ export const useOrder = () => {
     show();
 
     try {
-      const token = localStorage.getItem('token');
-
-      if (!token) {
+      if (!user.value?.id) {
         // У гостя нет истории заказов на сервере — отдаём пустой список
         return [];
       }
 
-      const res = await fetch(`${API_URL}/orders/my`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      const res = await fetch(`${API_URL}/orders/my?user_id=${encodeURIComponent(user.value.id)}`);
       const result = await res.json();
 
       if (!res.ok) {

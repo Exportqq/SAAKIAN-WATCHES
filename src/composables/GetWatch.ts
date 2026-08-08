@@ -57,6 +57,12 @@ export const watchesError = ref<string | null>(null);
 export const watchesTotal = ref(0);
 export const watchesHasMore = ref(false);
 
+export const newWatches = ref<Watch[]>([]);
+export const newWatchesLoading = ref(false);
+
+export const hotWatches = ref<Watch[]>([]);
+export const hotWatchesLoading = ref(false);
+
 const buildParams = (filters: WatchFilters | undefined, offset: number, limit: number) => {
   const params = new URLSearchParams();
 
@@ -89,6 +95,10 @@ const buildParams = (filters: WatchFilters | undefined, offset: number, limit: n
 export const useWatch = () => {
   const { request } = useApi();
 
+  // =========================
+  // Обычный список
+  // GET /watches
+  // =========================
   const getWatches = async (filters?: WatchFilters, limit = 16) => {
     watchesLoading.value = true;
     watchesError.value = null;
@@ -105,6 +115,7 @@ export const useWatch = () => {
       return res;
     } catch (e: any) {
       watchesError.value = e?.message || 'Error loading watches';
+
       watches.value = [];
       watchesHasMore.value = false;
       watchesTotal.value = 0;
@@ -113,6 +124,10 @@ export const useWatch = () => {
     }
   };
 
+  // =========================
+  // Подгрузка обычного списка
+  // GET /watches
+  // =========================
   const loadMoreWatches = async (filters?: WatchFilters, limit = 16) => {
     if (watchesLoadingMore.value) return;
     if (!watchesHasMore.value) return;
@@ -137,6 +152,66 @@ export const useWatch = () => {
     }
   };
 
+  // =========================
+  // Новинки
+  // GET /watches/new
+  // =========================
+  const getNewWatches = async (limit = 100) => {
+    newWatchesLoading.value = true;
+    watchesError.value = null;
+
+    try {
+      const params = new URLSearchParams();
+
+      params.append('offset', '0');
+      params.append('limit', String(limit));
+
+      const res = await request<WatchesPage>(`/watches/new?${params.toString()}`);
+
+      newWatches.value = res.items;
+
+      return res;
+    } catch (e: any) {
+      watchesError.value = e?.message || 'Error loading new watches';
+
+      newWatches.value = [];
+    } finally {
+      newWatchesLoading.value = false;
+    }
+  };
+
+  // =========================
+  // Популярные
+  // GET /watches/hot
+  // =========================
+  const getHotWatches = async (limit = 100) => {
+    hotWatchesLoading.value = true;
+    watchesError.value = null;
+
+    try {
+      const params = new URLSearchParams();
+
+      params.append('offset', '0');
+      params.append('limit', String(limit));
+
+      const res = await request<WatchesPage>(`/watches/hot?${params.toString()}`);
+
+      hotWatches.value = res.items;
+
+      return res;
+    } catch (e: any) {
+      watchesError.value = e?.message || 'Error loading hot watches';
+
+      hotWatches.value = [];
+    } finally {
+      hotWatchesLoading.value = false;
+    }
+  };
+
+  // =========================
+  // Один товар
+  // GET /watches/:id
+  // =========================
   const getWatchById = async (id: string) => {
     watchesLoading.value = true;
 
@@ -151,6 +226,10 @@ export const useWatch = () => {
     }
   };
 
+  // =========================
+  // Бренды
+  // GET /watches/meta/brands
+  // =========================
   const getBrands = async () => {
     return request<string[]>('/watches/meta/brands');
   };
@@ -158,6 +237,10 @@ export const useWatch = () => {
   return {
     getWatches,
     loadMoreWatches,
+
+    getNewWatches,
+    getHotWatches,
+
     getWatchById,
     getBrands,
 
@@ -170,5 +253,10 @@ export const useWatch = () => {
 
     watchesTotal,
     watchesHasMore,
+
+    newWatches,
+    newWatchesLoading,
+    hotWatches,
+    hotWatchesLoading,
   };
 };

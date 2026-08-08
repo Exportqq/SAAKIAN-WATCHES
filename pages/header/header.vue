@@ -32,7 +32,7 @@
       <img @click="goHome()" class="w-[184px] h-[46px] cursor-pointer" src="/logo.svg" />
 
       <div class="flex gap-[35px]">
-        <a @click="redirectAboutUs()" class="relative text-[16px] cursor-pointer">РАСПРОДАЖА</a>
+        <a @click="redirectAboutUs()" class="relative text-[16px] cursor-pointer">О НАС</a>
         <a @click="goProfile()" class="relative text-[16px] cursor-pointer">ПРОФИЛЬ</a>
       </div>
     </div>
@@ -61,7 +61,7 @@
     >
       <a @click="goHome()" class="text-lg">ГЛАВНАЯ</a>
       <a @click="goCatalog()" class="text-lg">КАТАЛОГ</a>
-      <a @click="redirectAboutUs()" class="text-lg">РАСПРОДАЖА</a>
+      <a @click="redirectAboutUs()" class="text-lg">О НАС</a>
       <a @click="goProfile()" class="text-lg">ПРОФИЛЬ</a>
     </div>
   </div>

@@ -16,15 +16,15 @@ export const globalRouting = () => {
   };
 
   const redirectDelivery = () => {
-    router.push('/Basket/PickUpDelivery');
+    router.push('/basket/PickUpDelivery');
   };
 
   const redirectBasket = () => {
-    router.push('/Basket');
+    router.push('/basket');
   };
 
   const redirectCatalog = () => {
-    router.push('/Catalog');
+    router.push('/catalog');
   };
 
   const redirectAboutUs = () => {
@@ -32,15 +32,15 @@ export const globalRouting = () => {
   };
 
   const redirectProfile = () => {
-    router.push('/Profile');
+    router.push('/profile');
   };
 
   const redirectAuth = () => {
-    router.push('/Auth');
+    router.push('/auth');
   };
 
   const redirectHome = () => {
-    router.push('/Home');
+    router.push('/home');
   };
 
   const redirectAdmin = () => {
@@ -48,19 +48,19 @@ export const globalRouting = () => {
   };
 
   const redirectOrder = () => {
-    router.push('/Profile/Orders');
+    router.push('/profile/orders');
   };
 
   const redirectDeliveryInfo = () => {
-    router.push('/Home/components/Contacts/components/Delivery');
+    router.push('/home/components/Contacts/components/Delivery');
   };
 
   const redirectPrivacyPolicy = () => {
-    router.push('/Home/components/Contacts/components/PrivacyPolicy');
+    router.push('/home/components/Contacts/components/PrivacyPolicy');
   };
 
   const redirectReturnPolicy = () => {
-    router.push('/Home/components/Contacts/components/ReturnPolicy');
+    router.push('/home/components/Contacts/components/ReturnPolicy');
   };
 
   return {

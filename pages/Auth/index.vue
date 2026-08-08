@@ -24,6 +24,7 @@
           <input
             v-model="username"
             placeholder="Username"
+            @keydown.enter="handleAuth"
             class="w-full h-[50px] border-b border-[#E6E6E6] outline-none focus:border-black transition"
           />
 
@@ -31,6 +32,7 @@
             v-model="password"
             type="password"
             placeholder="Password"
+            @keydown.enter="handleAuth"
             class="w-full h-[50px] border-b border-[#E6E6E6] outline-none focus:border-black transition"
           />
         </div>
@@ -43,9 +45,9 @@
         <!-- BUTTON -->
         <button
           @click="handleAuth"
-          :disabled="authLoading"
+          :disabled="authLoading || !username || !password"
           class="w-full h-[48px] rounded-full text-white text-[14px] font-medium transition"
-          :class="authLoading ? 'bg-gray-400' : 'bg-black hover:bg-[#222]'"
+          :class="authLoading || !username || !password ? 'bg-gray-400' : 'bg-black hover:bg-[#222]'"
         >
           {{ authLoading ? '...' : isLogin ? 'Войти' : 'Создать' }}
         </button>
@@ -91,19 +93,25 @@ const toggle = () => {
 const handleAuth = async () => {
   if (!username.value || !password.value) return;
 
-  try {
-    authLoading.value = true;
-    show();
+  authLoading.value = true;
+  error.value = null;
+  show();
 
+  try {
     if (isLogin.value) {
-      try {
-        await adminLogin(username.value, password.value);
+      // Сначала тихо проверяем, не админ ли это — для обычного пользователя
+      // это ожидаемо упадёт с "Invalid credentials", и это нормально,
+      // ошибку из этой попытки пользователю не показываем
+      const isAdmin = await adminLogin(username.value, password.value).catch(() => null);
+
+      if (isAdmin) {
         redirectAdmin();
         return;
-      } catch {
-        const res = await login(username.value, password.value);
-        if (res) redirectProfile();
       }
+
+      const res = await login(username.value, password.value);
+      if (res) redirectProfile();
+      // если res === null — useAuth уже выставил error.value сам
     } else {
       const res = await register(username.value, password.value);
       if (res) redirectProfile();

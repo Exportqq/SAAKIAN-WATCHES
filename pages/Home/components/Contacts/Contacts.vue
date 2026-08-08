@@ -52,7 +52,7 @@
               <span class="text-[14px] text-[#444] group-hover:text-black transition"> Telegram </span>
             </a>
 
-            <a href="https://www.avito.ru/" target="_blank" class="flex items-center gap-3 group">
+            <!-- <a href="https://www.avito.ru/" target="_blank" class="flex items-center gap-3 group">
               <div
                 class="w-9 h-9 rounded-full bg-[#F5F5F5] group-hover:bg-black transition flex items-center justify-center shrink-0"
               >
@@ -60,7 +60,7 @@
               </div>
 
               <span class="text-[14px] text-[#444] group-hover:text-black transition"> Авито </span>
-            </a>
+            </a> -->
           </div>
         </div>
       </div>

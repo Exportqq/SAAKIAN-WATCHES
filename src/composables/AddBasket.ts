@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import type { Watch } from './GetWatch';
 import { useApi } from './useApi';
+import { useAuth } from './useAuth';
 
 export interface BasketItem {
   cart_item_id: string;
@@ -20,8 +21,6 @@ interface GuestCartEntry {
 
 const isClient = typeof window !== 'undefined';
 
-const hasToken = () => (isClient ? !!localStorage.getItem('token') : false);
-
 const readGuestCart = (): GuestCartEntry[] => {
   if (!isClient) return [];
   try {
@@ -39,12 +38,17 @@ const writeGuestCart = (items: GuestCartEntry[]) => {
 
 export const useBasket = () => {
   const { request } = useApi();
+  const { user } = useAuth();
 
-  // Данных о товаре в гостевой корзине нет — подтягиваем их через поиск по custom_id
+  // Единственный источник правды об id пользователя — useAuth,
+  // а не "Bearer токен", который бэкенд не проверяет
+  const getUserId = () => user.value?.id ?? null;
+
+  // GET /watches/{custom_id} отдаёт товар напрямую (не обёрнут в {items, total, has_more},
+  // как это делает /watches?search=...) — поэтому используем именно его
   const findWatchByCustomId = async (custom_id: string): Promise<Watch | null> => {
     try {
-      const res = await request<Watch[]>(`/watches?search=${encodeURIComponent(custom_id)}`);
-      return res.find((w) => w.custom_id === custom_id) ?? null;
+      return await request<Watch>(`/watches/${encodeURIComponent(custom_id)}`);
     } catch {
       return null;
     }
@@ -70,12 +74,15 @@ export const useBasket = () => {
   };
 
   const getBasket = async () => {
-    if (!hasToken()) {
+    const userId = getUserId();
+
+    if (!userId) {
       return getGuestBasket();
     }
 
     try {
-      const res = await request<BasketItem[]>('/cart');
+      // user_id обязателен как query-параметр
+      const res = await request<BasketItem[]>(`/cart?user_id=${encodeURIComponent(userId)}`);
       basket.value = res;
       return res;
     } catch (e: any) {
@@ -103,11 +110,14 @@ export const useBasket = () => {
   };
 
   const addToBasket = async (custom_id: string, quantity: number = 1) => {
-    if (!hasToken()) {
+    const userId = getUserId();
+
+    if (!userId) {
       return addToGuestBasket(custom_id, quantity);
     }
 
     try {
+      // CartDTO.user_id обязателен в теле запроса
       const res = await request('/cart/add', {
         method: 'POST',
         headers: {
@@ -116,6 +126,7 @@ export const useBasket = () => {
         body: JSON.stringify({
           custom_id,
           quantity,
+          user_id: userId,
         }),
       });
 
@@ -134,12 +145,15 @@ export const useBasket = () => {
   };
 
   const removeFromBasket = async (custom_id: string) => {
-    if (!hasToken()) {
+    const userId = getUserId();
+
+    if (!userId) {
       return removeFromGuestBasket(custom_id);
     }
 
     try {
-      const res = await request(`/cart/remove/${custom_id}`, {
+      // user_id обязателен как query-параметр
+      const res = await request(`/cart/remove/${custom_id}?user_id=${encodeURIComponent(userId)}`, {
         method: 'DELETE',
       });
 
@@ -153,7 +167,8 @@ export const useBasket = () => {
 
   // Переносим гостевую корзину на сервер сразу после входа/регистрации
   const mergeGuestBasket = async () => {
-    if (!hasToken()) return;
+    const userId = getUserId();
+    if (!userId) return;
 
     const entries = readGuestCart();
     if (!entries.length) {
@@ -166,7 +181,11 @@ export const useBasket = () => {
         await request('/cart/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ custom_id: entry.custom_id, quantity: entry.quantity }),
+          body: JSON.stringify({
+            custom_id: entry.custom_id,
+            quantity: entry.quantity,
+            user_id: userId,
+          }),
         });
       } catch (e) {
         // если конкретный товар не перенёсся (например, его уже нет в наличии) —

@@ -1,7 +1,49 @@
 <template>
   <Header />
 
-  <div class="min-h-[400px] px-4 pt-[40px] flex justify-center">
+  <!-- НЕАВТОРИЗОВАН -->
+  <div v-if="!authChecked" class="min-h-[400px] flex items-center justify-center">
+    <div class="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+  </div>
+
+  <div v-else-if="!user" class="min-h-[400px] px-4 pt-[40px] flex justify-center">
+    <div
+      class="w-full max-w-[560px] bg-white rounded-[32px] border border-[#E7E7E7] shadow-[0_10px_40px_rgba(0,0,0,0.04)] overflow-hidden"
+    >
+      <div class="pt-[52px] px-[30px] pb-[44px] text-center">
+        <div
+          class="w-[76px] h-[76px] mx-auto rounded-full bg-[#F7F7F7] border border-[#EFEFEF] flex items-center justify-center"
+        >
+          <svg class="w-8 h-8 text-black/70" viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="10" width="16" height="10" rx="3" stroke="currentColor" stroke-width="1.7" />
+            <path
+              d="M8 10V7.5C8 5.29086 9.79086 3.5 12 3.5C14.2091 3.5 16 5.29086 16 7.5V10"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+            <circle cx="12" cy="14.5" r="1.4" fill="currentColor" />
+          </svg>
+        </div>
+
+        <h1 class="text-[26px] font-extrabold text-black leading-tight mt-[22px]">Вы не авторизованы</h1>
+
+        <p class="text-[14px] text-[#888] mt-[10px] leading-relaxed max-w-[360px] mx-auto">
+          Войдите в аккаунт, чтобы видеть свои заказы и бонусный баланс
+        </p>
+
+        <button
+          @click="redirectAuth()"
+          class="w-full mt-[28px] h-[56px] rounded-full bg-black text-white font-semibold text-[16px] hover:bg-[#222] transition-all duration-200 active:scale-[0.98]"
+        >
+          Войти или зарегистрироваться
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- АВТОРИЗОВАН -->
+  <div v-else class="min-h-[400px] px-4 pt-[40px] flex justify-center">
     <div
       class="w-full max-w-[560px] max-h-[calc(100vh-40px)] bg-white rounded-[32px] border border-[#E7E7E7] shadow-[0_10px_40px_rgba(0,0,0,0.04)] overflow-y-auto"
     >
@@ -155,14 +197,17 @@ import { useBonus } from '~/src/composables/useBonus';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import Header from '../header/header.vue';
 
-const { getMe, logout } = useAuth();
+const { user, getMe, logout } = useAuth();
 const { show, hide } = useGlobalLoader();
 const { redirectAuth, redirectOrder } = globalRouting();
 
 const { bonus, fetchBonus } = useBonus();
 
-const user = ref<any>(null);
 const bonusModal = ref(false);
+
+// Пока идёт первая проверка — показываем спиннер вместо мгновенного
+// мигания "не авторизован" -> "авторизован"
+const authChecked = ref(false);
 
 const logoutHandler = () => {
   logout();
@@ -172,9 +217,13 @@ const logoutHandler = () => {
 onMounted(async () => {
   try {
     show();
-    user.value = await getMe();
-    await fetchBonus();
+    await getMe();
+
+    if (user.value) {
+      await fetchBonus();
+    }
   } finally {
+    authChecked.value = true;
     hide();
   }
 });
