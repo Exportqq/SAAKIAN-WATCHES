@@ -14,5 +14,27 @@
 <script lang="ts" setup>
 useHead({
   titleTemplate: (title) => (title ? `${title} — Saakian Watches` : 'Saakian Watches — оригинальные наручные часы'),
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: 'Saakian Watches',
+        url: 'https://saakian-watches.ru',
+        logo: 'https://saakian-watches.ru/logo.webp',
+        sameAs: ['https://t.me/lilexport'],
+      }),
+    },
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Saakian Watches',
+        url: 'https://saakian-watches.ru',
+      }),
+    },
+  ],
 });
 </script>
