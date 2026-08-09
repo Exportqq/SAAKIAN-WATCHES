@@ -76,7 +76,7 @@
                 :key="item.watch_id"
                 class="flex gap-4 border rounded-[16px] p-4 items-center"
               >
-                <img :src="item.images?.[0]" class="w-[55px] h-[90px] rounded-[12px]" />
+                <img :src="item.images?.[0]" loading="lazy" class="w-[55px] h-[90px] rounded-[12px]" />
                 <div>
                   <p class="font-bold">{{ item.title }}</p>
                   <p class="text-[#666]">{{ item.brand }}</p>

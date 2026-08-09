@@ -34,6 +34,7 @@
             <span class="w-full aspect-square flex items-center justify-center">
               <img
                 :src="normalizeImage(img)"
+                loading="lazy"
                 class="max-w-full max-h-full object-contain transition-opacity duration-300"
                 :class="activeImage === index ? 'opacity-100' : 'opacity-35 hover:opacity-70'"
               />

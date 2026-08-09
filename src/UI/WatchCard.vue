@@ -62,7 +62,11 @@ const addBasketHandler = async (e: Event) => {
 <template>
   <NuxtLink :to="`/watch/${watch.id}`" class="watch-card block">
     <div class="watch-photo-bg w-full aspect-square flex items-center justify-center rounded-[20px]">
-      <img :src="getImageUrl(watch.images?.[0])" class="w-full h-full object-contain p-2 bg-[#F7F7F7] rounded-[20px]" />
+      <img
+        :src="getImageUrl(watch.images?.[0])"
+        loading="lazy"
+        class="w-full h-full object-contain p-2 bg-[#F7F7F7] rounded-[20px]"
+      />
     </div>
 
     <div class="mt-[16px] flex items-center justify-between gap-3">

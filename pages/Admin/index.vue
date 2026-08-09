@@ -126,7 +126,7 @@
             <div class="mt-4 border-t pt-4 space-y-2">
               <div v-for="item in order.items" :key="item.watch_id" class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-[#F5F5F5] rounded-[10px] overflow-hidden">
-                  <img v-if="item.images?.[0]" :src="item.images[0]" class="w-full h-full object-contain" />
+                  <img v-if="item.images?.[0]" :src="item.images[0]" loading="lazy" class="w-full h-full object-contain" />
                 </div>
                 <div class="flex-1">
                   <p class="text-[13px] font-semibold truncate">{{ item.title }}</p>

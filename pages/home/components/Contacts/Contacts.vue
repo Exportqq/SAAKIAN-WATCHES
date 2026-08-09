@@ -5,7 +5,7 @@
     <div class="max-w-[1400px] mx-auto">
       <div class="grid grid-cols-3 max-md:grid-cols-1 gap-10">
         <div class="space-y-4">
-          <img src="/logo.svg" alt="logo" class="h-[28px] w-auto" />
+          <img src="/logo.webp" alt="logo" class="h-[28px] w-auto" />
           <p class="text-[13px] text-[#888] leading-relaxed max-w-[260px]">
             Магазин оригинальных часов. Гарантия подлинности на все модели.
           </p>
