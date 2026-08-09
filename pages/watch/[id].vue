@@ -69,16 +69,24 @@
             <span class="spec-value">{{ currentWatch.brand }}</span>
           </div>
           <div class="spec-row">
-            <span class="spec-label">Страна</span>
-            <span class="spec-value">{{ currentWatch.brand_country }}</span>
-          </div>
-          <div class="spec-row">
             <span class="spec-label">Механизм</span>
             <span class="spec-value">{{ currentWatch.mechanism }}</span>
           </div>
           <div class="spec-row">
             <span class="spec-label">Корпус</span>
             <span class="spec-value">{{ currentWatch.case_material }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">Цвет корпуса</span>
+            <span class="spec-value">{{ currentWatch.case_color }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">Циферблат</span>
+            <span class="spec-value">{{ currentWatch.dial }}</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-label">Цвет циферблата</span>
+            <span class="spec-value">{{ currentWatch.dial_color }}</span>
           </div>
           <div class="spec-row">
             <span class="spec-label">Стекло</span>
@@ -361,10 +369,28 @@ useHead(() => ({
               url: `https://saakian-watches.ru${route.path}`,
               priceCurrency: 'RUB',
               price: currentWatch.value.price,
-              availability: currentWatch.value.in_stock
-                ? 'https://schema.org/InStock'
-                : 'https://schema.org/OutOfStock',
+              // Backend has no stock/inventory concept — every listed item is
+              // orderable, so this is always InStock rather than defaulting
+              // to (incorrectly) OutOfStock.
+              availability: 'https://schema.org/InStock',
             },
+          }),
+        },
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Главная', item: 'https://saakian-watches.ru/' },
+              { '@type': 'ListItem', position: 2, name: 'Каталог', item: 'https://saakian-watches.ru/catalog' },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: displayTitle(currentWatch.value),
+                item: `https://saakian-watches.ru${route.path}`,
+              },
+            ],
           }),
         },
       ]

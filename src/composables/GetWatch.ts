@@ -16,19 +16,12 @@ export interface Watch {
   dial: string;
   dial_color: string;
   glass: string;
-  backlight: string;
   gender: string;
-  brand_country: string;
   brand: string;
 
   status: string;
-  in_stock: boolean;
 
   bonus_percent: number;
-  discount_percent: number;
-
-  rating: number;
-  reviews_count: number;
 }
 
 export interface WatchesPage {
