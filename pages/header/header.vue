@@ -29,7 +29,7 @@
         <a @click="goCatalog()" class="relative text-[16px] cursor-pointer">КАТАЛОГ</a>
       </div>
 
-      <img @click="goHome()" class="w-[184px] h-[46px] cursor-pointer" src="/logo.svg" />
+      <img @click="goHome()" class="w-[184px] h-[46px] cursor-pointer" src="/logo.webp" />
 
       <div class="flex gap-[35px]">
         <a @click="redirectAboutUs()" class="relative text-[16px] cursor-pointer">О НАС</a>
@@ -38,7 +38,7 @@
     </div>
 
     <div v-else class="w-full flex items-center justify-center">
-      <img @click="goHome()" class="w-[140px] h-[36px]" src="/logo.svg" />
+      <img @click="goHome()" class="w-[140px] h-[36px]" src="/logo.webp" />
     </div>
 
     <div class="absolute right-[200px] max-md:right-4 z-50">

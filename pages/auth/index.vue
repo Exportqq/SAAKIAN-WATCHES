@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white px-4">
     <!-- TOP LOGO -->
     <div class="w-full flex justify-center pt-10 md:pt-14">
-      <img src="/logo.svg" alt="logo" class="h-[28px] md:h-[44px] w-auto" />
+      <img src="/logo.webp" alt="logo" class="h-[28px] md:h-[44px] w-auto" />
     </div>
 
     <!-- CENTER CONTENT -->

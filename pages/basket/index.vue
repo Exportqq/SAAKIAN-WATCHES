@@ -11,7 +11,7 @@
         class="border border-[#E5E5E5] rounded-[16px] p-4 flex gap-4 items-center"
       >
         <div class="w-[72px] h-[72px] bg-[#F0EEED] rounded-[12px] overflow-hidden shrink-0">
-          <img :src="normalizeImage(item.watch.images?.[0])" class="w-full h-full object-contain" />
+          <img :src="normalizeImage(item.watch.images?.[0])" loading="lazy" class="w-full h-full object-contain" />
         </div>
 
         <div class="flex-1 min-w-0">
