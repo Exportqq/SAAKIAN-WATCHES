@@ -13,11 +13,16 @@
     </div>
   </div>
 
+  <div class="mt-[72px] max-md:mt-[60px]">
+    <AboutBlock />
+  </div>
+
   <Contacts />
 </template>
 
 <script lang="ts" setup>
 import Header from '~/src/components/Header.vue';
+import AboutBlock from '~/src/components/home/AboutBlock.vue';
 import Contacts from '~/src/components/home/Contacts.vue';
 import Greetings from '~/src/components/home/Greetings.vue';
 import NewCollection from '~/src/components/home/NewCollection.vue';
