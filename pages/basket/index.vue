@@ -163,6 +163,7 @@ import useWindowSizes from '~/src/composables/window_size.js';
 import AuthRequiredModal from '~/src/UI/AuthRequiredModal.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import Header from '../header/header.vue';
+import { useYm } from '~/src/composables/useYm.js';
 
 const { basket, getBasket, addToBasket, removeFromBasket } = useBasket();
 const { show, hide } = useGlobalLoader();
@@ -172,6 +173,7 @@ const { bonus, fetchBonus } = useBonus();
 const { useBonusToggle, toggleBonus } = useBonusState();
 const { user, init: initAuth } = useAuth();
 const router = useRouter();
+const { reachGoal, ecommercePush } = useYm();
 
 const popupVisible = ref(false);
 const popupMessage = ref('');
@@ -297,6 +299,23 @@ const remove = async (id: string) => {
 
 // Если пользователь не авторизован — показываем модалку вместо перехода к оформлению
 const goNext = () => {
+  reachGoal('click_cart_checkout', { order_price: totalPrice.value });
+
+  ecommercePush({
+    ecommerce: {
+      checkout: {
+        actionField: { step: 1 },
+        products: basket.value.map((i) => ({
+          id: i.watch.custom_id,
+          name: i.watch.title,
+          brand: i.watch.brand,
+          price: i.watch.price,
+          quantity: i.quantity,
+        })),
+      },
+    },
+  });
+
   if (!isAuthenticated.value) {
     authModalVisible.value = true;
     return;

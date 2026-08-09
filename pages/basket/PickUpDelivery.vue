@@ -214,6 +214,7 @@ import ButtonUI from '~/src/UI/ButtonUI.vue';
 import OrderSuccessScreen from '~/src/UI/OrderSuccessScreen.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
 import Header from '../header/header.vue';
+import { useYm } from '~/src/composables/useYm.js';
 
 const deliveryType = ref<'cdek' | 'yandex'>('cdek');
 const address = ref('');
@@ -235,6 +236,9 @@ const { createOrder } = useOrder();
 const { redirectOrder } = globalRouting();
 const { show, hide } = useGlobalLoader();
 const { useBonusToggle } = useBonusState();
+const { reachGoal, ecommercePush } = useYm();
+
+const totalPrice = computed(() => basket.value.reduce((sum, i) => sum + i.watch.price * i.quantity, 0));
 
 const canContinue = computed(() => {
   return (
@@ -301,6 +305,27 @@ const nextStep = async () => {
     });
 
     lastOrderId.value = order?.id ? String(order.id).slice(0, 8).toUpperCase() : '';
+
+    // === ГЛАВНАЯ ЦЕЛЬ: заказ реально создан на бэкенде ===
+    reachGoal('purchase', { order_price: totalPrice.value });
+
+    ecommercePush({
+      ecommerce: {
+        purchase: {
+          actionField: {
+            id: order?.id || lastOrderId.value,
+            revenue: totalPrice.value,
+          },
+          products: basket.value.map((i) => ({
+            id: i.watch.custom_id,
+            name: i.watch.title,
+            brand: i.watch.brand,
+            price: i.watch.price,
+            quantity: i.quantity,
+          })),
+        },
+      },
+    });
 
     // Полноэкранный экран успеха сам держит себя 10 секунд и сообщает,
     // когда пора уводить пользователя дальше
