@@ -58,13 +58,13 @@
       </div>
     </div> -->
 
-    <div class="flex justify-center">
+    <!-- <div class="flex justify-center">
       <div v-if="isMobile" data-aos="fade-up" data-aos-anchor-placement="center-bottom" class="flex flex-col">
         <h2 class="h-[49px] text-[#000000] font-semibold text-[40px] max-md:h-[29px] max-md:text-[24px]">33000+</h2>
 
         <p class="text-[#666666] font-regular text-[16px] max-md:text-[12px]">ОТЗЫВОВ</p>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
