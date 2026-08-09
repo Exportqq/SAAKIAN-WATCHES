@@ -26,7 +26,7 @@
 
           <ButtonUI
             v-if="isDesktop"
-            @click="redirectCatalog()"
+            @click="handleHeroCatalogClick()"
             class="mt-[36px]"
             :text="'СМОТРЕТЬ КАТАЛОГ'"
             :max-width="false"
@@ -36,7 +36,7 @@
           />
           <ButtonUI
             v-if="isMobile"
-            @click="redirectCatalog()"
+            @click="handleHeroCatalogClick()"
             class="mt-[28px]"
             :text="'СМОТРЕТЬ КАТАЛОГ'"
             :max-width="true"
@@ -159,7 +159,7 @@
         </h2>
 
         <ButtonUI
-          @click="redirectCatalog()"
+          @click="handleCtaCatalogClick()"
           :text="'СМОТРЕТЬ КАТАЛОГ'"
           :max-width="isMobile"
           :rounded="62"
@@ -184,6 +184,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { globalRouting } from '~/src/composables/globbal';
+import { useYm } from '~/src/composables/useYm.js';
 import useWindowSizes from '~/src/composables/window_size';
 import ButtonUI from '~/src/UI/ButtonUI.vue';
 import Header from '../header/header.vue';
@@ -192,6 +193,17 @@ gsap.registerPlugin(ScrollTrigger);
 
 const { isDesktop, isMobile } = useWindowSizes();
 const { redirectCatalog } = globalRouting();
+const { reachGoal } = useYm();
+
+function handleHeroCatalogClick() {
+  reachGoal('click_about_hero_catalog');
+  redirectCatalog();
+}
+
+function handleCtaCatalogClick() {
+  reachGoal('click_about_cta_catalog');
+  redirectCatalog();
+}
 
 const ticks = Array.from({ length: 12 }, (_, i) => i * 30);
 
