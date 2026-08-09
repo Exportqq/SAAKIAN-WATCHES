@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
 
-  css: ['~/assets/css/global.css', 'aos/dist/aos.css'],
+  css: ['~/assets/css/global.css'],
 
   vite: {
     plugins: [tailwindcss()],
@@ -14,7 +14,6 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'ru' },
-      titleTemplate: (title) => (title ? `${title} — Saakian Watches` : 'Saakian Watches — оригинальные наручные часы'),
       meta: [
         { name: 'description', content: 'Saakian Watches — магазин оригинальных наручных часов с гарантией подлинности. Каталог проверенных брендов, доставка по всей России.' },
         { name: 'robots', content: 'index, follow' },
@@ -28,15 +27,17 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/webp', href: '/logo.webp' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
+        // Loaded non-blocking (media=print swapped to all onload) so the font CSS
+        // doesn't delay first paint; noscript fallback is in app.vue.
         {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap',
+          media: 'print',
+          onload: "this.media='all'",
         },
       ],
     },
   },
-
-  plugins: [{ src: '~/plugins/aos', mode: 'client' }],
 
   runtimeConfig: {
     public: {
