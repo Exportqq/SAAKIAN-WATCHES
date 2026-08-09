@@ -143,8 +143,15 @@
 </template>
 
 <script setup lang="ts">
-import Header from '~/pages/header/header.vue';
-import Contacts from '../Contacts.vue';
+import Header from '~/src/components/Header.vue';
+import Contacts from '~/src/components/home/Contacts.vue';
+import { useCanonical } from '~/src/composables/useCanonical';
+
+useCanonical('/return-policy');
+useSeoMeta({
+  title: 'Возврат и споры',
+  description: 'Условия возврата часов в Saakian Watches: когда возможен возврат и как оформить заявку.',
+});
 
 const canReturn = [
   'На видео упаковки виден заводской дефект товара',

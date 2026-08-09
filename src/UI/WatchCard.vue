@@ -64,6 +64,7 @@ const addBasketHandler = async (e: Event) => {
     <div class="watch-photo-bg w-full aspect-square flex items-center justify-center rounded-[20px]">
       <img
         :src="getImageUrl(watch.images?.[0])"
+        :alt="`${watch.brand} ${displayName}`"
         loading="lazy"
         class="w-full h-full object-contain p-2 bg-[#F7F7F7] rounded-[20px]"
       />
@@ -75,7 +76,7 @@ const addBasketHandler = async (e: Event) => {
           {{ displayName }}
         </span>
         <span class="mono block text-[17px] font-semibold text-[#151413] mt-[6px]">
-          {{ watch.price.toLocaleString() }} ₽
+          {{ watch.price.toLocaleString('ru-RU') }} ₽
         </span>
       </div>
 

@@ -194,8 +194,12 @@ import { onMounted, ref } from 'vue';
 import { globalRouting } from '~/src/composables/globbal';
 import { useAuth } from '~/src/composables/useAuth';
 import { useBonus } from '~/src/composables/useBonus';
+import { useNoIndex } from '~/src/composables/useCanonical';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
-import Header from '../header/header.vue';
+import Header from '~/src/components/Header.vue';
+
+useNoIndex();
+useSeoMeta({ title: 'Профиль' });
 
 const { user, getMe, logout } = useAuth();
 const { show, hide } = useGlobalLoader();

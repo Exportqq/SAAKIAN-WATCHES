@@ -186,8 +186,19 @@ import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { globalRouting } from '~/src/composables/globbal';
 import { useYm } from '~/src/composables/useYm.js';
 import useWindowSizes from '~/src/composables/window_size';
+import { useCanonical } from '~/src/composables/useCanonical';
 import ButtonUI from '~/src/UI/ButtonUI.vue';
-import Header from '../header/header.vue';
+import Header from '~/src/components/Header.vue';
+
+useCanonical('/about-us');
+
+useSeoMeta({
+  title: 'О нас',
+  description:
+    'Saakian Watches — 12 лет на рынке оригинальных наручных часов. Каждая модель проходит проверку подлинности перед продажей.',
+  ogTitle: 'О бренде Saakian Watches',
+  ogDescription: 'Проверка подлинности каждой модели, курированный каталог и честный сервис.',
+});
 
 gsap.registerPlugin(ScrollTrigger);
 

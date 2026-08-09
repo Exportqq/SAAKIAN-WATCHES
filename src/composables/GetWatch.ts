@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { useState } from '#app';
 import { useApi } from './useApi';
 
 export interface Watch {
@@ -47,22 +47,6 @@ export interface WatchFilters {
   sort?: WatchSort;
 }
 
-export const watches = ref<Watch[]>([]);
-export const currentWatch = ref<Watch | null>(null);
-
-export const watchesLoading = ref(false);
-export const watchesLoadingMore = ref(false);
-export const watchesError = ref<string | null>(null);
-
-export const watchesTotal = ref(0);
-export const watchesHasMore = ref(false);
-
-export const newWatches = ref<Watch[]>([]);
-export const newWatchesLoading = ref(false);
-
-export const hotWatches = ref<Watch[]>([]);
-export const hotWatchesLoading = ref(false);
-
 const buildParams = (filters: WatchFilters | undefined, offset: number, limit: number) => {
   const params = new URLSearchParams();
 
@@ -92,8 +76,27 @@ const buildParams = (filters: WatchFilters | undefined, offset: number, limit: n
   return params;
 };
 
+// useState вместо голого ref() — состояние живёт в SSR-контексте конкретного
+// запроса и сериализуется в payload для гидратации, а не шарится между
+// параллельными запросами разных пользователей на сервере (как было раньше).
 export const useWatch = () => {
   const { request } = useApi();
+
+  const watches = useState<Watch[]>('watches-list', () => []);
+  const currentWatch = useState<Watch | null>('watch-current', () => null);
+
+  const watchesLoading = useState<boolean>('watches-loading', () => false);
+  const watchesLoadingMore = useState<boolean>('watches-loading-more', () => false);
+  const watchesError = useState<string | null>('watches-error', () => null);
+
+  const watchesTotal = useState<number>('watches-total', () => 0);
+  const watchesHasMore = useState<boolean>('watches-has-more', () => false);
+
+  const newWatches = useState<Watch[]>('watches-new', () => []);
+  const newWatchesLoading = useState<boolean>('watches-new-loading', () => false);
+
+  const hotWatches = useState<Watch[]>('watches-hot', () => []);
+  const hotWatchesLoading = useState<boolean>('watches-hot-loading', () => false);
 
   // =========================
   // Обычный список
@@ -221,6 +224,9 @@ export const useWatch = () => {
       currentWatch.value = res;
 
       return res;
+    } catch (e: any) {
+      currentWatch.value = null;
+      watchesError.value = e?.message || 'Error loading watch';
     } finally {
       watchesLoading.value = false;
     }

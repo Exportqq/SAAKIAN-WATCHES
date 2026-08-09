@@ -23,27 +23,31 @@
       </div>
     </button>
 
-    <div v-if="!isMobile" class="flex gap-[68px] items-center">
+    <nav v-if="!isMobile" class="flex gap-[68px] items-center" aria-label="Основная навигация">
       <div class="flex gap-[35px]">
-        <a @click="goHome()" class="relative text-[16px] cursor-pointer">ГЛАВНАЯ</a>
-        <a @click="goCatalog()" class="relative text-[16px] cursor-pointer">КАТАЛОГ</a>
+        <NuxtLink to="/" class="relative text-[16px] cursor-pointer">ГЛАВНАЯ</NuxtLink>
+        <NuxtLink to="/catalog" class="relative text-[16px] cursor-pointer">КАТАЛОГ</NuxtLink>
       </div>
 
-      <img @click="goHome()" class="w-[184px] h-[46px] cursor-pointer" src="/logo.webp" />
+      <NuxtLink to="/" aria-label="Saakian Watches — на главную">
+        <img class="w-[184px] h-[46px] cursor-pointer" src="/logo.webp" alt="Saakian Watches" width="184" height="46" />
+      </NuxtLink>
 
       <div class="flex gap-[35px]">
-        <a @click="redirectAboutUs()" class="relative text-[16px] cursor-pointer">О НАС</a>
-        <a @click="goProfile()" class="relative text-[16px] cursor-pointer">ПРОФИЛЬ</a>
+        <NuxtLink to="/about-us" class="relative text-[16px] cursor-pointer">О НАС</NuxtLink>
+        <NuxtLink to="/profile" class="relative text-[16px] cursor-pointer">ПРОФИЛЬ</NuxtLink>
       </div>
-    </div>
+    </nav>
 
     <div v-else class="w-full flex items-center justify-center">
-      <img @click="goHome()" class="w-[140px] h-[36px]" src="/logo.webp" />
+      <NuxtLink to="/" aria-label="Saakian Watches — на главную">
+        <img class="w-[140px] h-[36px]" src="/logo.webp" alt="Saakian Watches" width="140" height="36" />
+      </NuxtLink>
     </div>
 
     <div class="absolute right-[200px] max-md:right-4 z-50">
-      <div class="relative cursor-pointer" @click="goToBasket">
-        <img class="w-[28px] h-[28px]" src="/icons/basket.svg" />
+      <NuxtLink to="/basket" class="relative cursor-pointer block" aria-label="Корзина">
+        <img class="w-[28px] h-[28px]" src="/icons/basket.svg" alt="" />
 
         <div
           v-if="basketCount > 0"
@@ -51,42 +55,36 @@
         >
           {{ basketCount }}
         </div>
-      </div>
+      </NuxtLink>
     </div>
 
-    <div
+    <nav
       v-if="isMobile"
       class="fixed top-0 left-0 h-full w-full bg-white z-40 flex flex-col items-center justify-center gap-6 transform transition-all duration-500 ease-out"
       :class="isMenuOpen ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 pointer-events-none'"
+      aria-label="Мобильная навигация"
     >
-      <a @click="goHome()" class="text-lg">ГЛАВНАЯ</a>
-      <a @click="goCatalog()" class="text-lg">КАТАЛОГ</a>
-      <a @click="redirectAboutUs()" class="text-lg">О НАС</a>
-      <a @click="goProfile()" class="text-lg">ПРОФИЛЬ</a>
-    </div>
+      <NuxtLink to="/" class="text-lg" @click="isMenuOpen = false">ГЛАВНАЯ</NuxtLink>
+      <NuxtLink to="/catalog" class="text-lg" @click="isMenuOpen = false">КАТАЛОГ</NuxtLink>
+      <NuxtLink to="/about-us" class="text-lg" @click="isMenuOpen = false">О НАС</NuxtLink>
+      <NuxtLink to="/profile" class="text-lg" @click="isMenuOpen = false">ПРОФИЛЬ</NuxtLink>
+    </nav>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useBasket } from '~/src/composables/AddBasket';
-import { globalRouting } from '~/src/composables/globbal';
 import useWindowSizes from '~/src/composables/window_size';
 
 const { isMobile } = useWindowSizes();
 const isMenuOpen = ref(false);
 
 const { basket, getBasket } = useBasket();
-const { redirectCatalog, redirectBasket, redirectHome, redirectProfile, redirectAboutUs } = globalRouting();
 
 const basketCount = computed(() => {
   return basket.value.reduce((sum, item) => sum + item.quantity, 0);
 });
-
-const goToBasket = () => redirectBasket();
-const goCatalog = () => redirectCatalog();
-const goHome = () => redirectHome();
-const goProfile = () => redirectProfile();
 
 onMounted(() => {
   getBasket();

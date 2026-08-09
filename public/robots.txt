@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /basket
+Disallow: /profile
+Disallow: /Admin
+
+Sitemap: https://saakian-watches.ru/sitemap.xml

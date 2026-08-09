@@ -1,17 +1,14 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
 import { useWatch } from '~/src/composables/GetWatch';
 import WatchCard from '~/src/UI/WatchCard.vue';
 
 const { getNewWatches, newWatches, newWatchesLoading } = useWatch();
 
-onMounted(() => {
-  getNewWatches(100);
-});
+await useAsyncData('home-new-watches', () => getNewWatches(100));
 </script>
 
 <template>
-  <h1 class="font-extrabold text-[48px] max-md:text-[28px] h-[59px] max-md:h-[34px]">НОВИНКА САЙТА</h1>
+  <h2 class="font-extrabold text-[48px] max-md:text-[28px] h-[59px] max-md:h-[34px]">НОВИНКА САЙТА</h2>
 
   <div v-if="newWatchesLoading">Loading...</div>
 

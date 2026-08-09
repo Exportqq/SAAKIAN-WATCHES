@@ -136,8 +136,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import Contacts from '../Contacts.vue';
-import Header from '~/pages/header/header.vue';
+import Contacts from '~/src/components/home/Contacts.vue';
+import Header from '~/src/components/Header.vue';
+import { useCanonical } from '~/src/composables/useCanonical';
+
+useCanonical('/delivery');
+useSeoMeta({
+  title: 'Доставка',
+  description: 'Бесплатная доставка часов Saakian Watches по всей России — Яндекс Доставка и СДЭК.',
+});
 
 const videoModal = ref(false);
 </script>
