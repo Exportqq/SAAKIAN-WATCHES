@@ -49,7 +49,7 @@
       <!-- ИНФОРМАЦИЯ -->
       <div class="flex flex-col">
         <h1 class="watch-title font-bold text-[38px] leading-[1.15] max-md:text-[26px] tracking-[-0.01em]">
-          {{ currentWatch.title }}
+          {{ displayTitle(currentWatch) }}
         </h1>
 
         <div class="flex items-center gap-3 mt-[20px]">
@@ -57,7 +57,7 @@
           <span class="h-[1px] w-[28px] bg-[#C9A24B]" />
         </div>
 
-        <p
+        <div
           class="mt-[24px] text-[15.5px] leading-[26px] text-[#6B6B65] max-w-[46ch]"
           v-html="currentWatch.description"
         />
@@ -246,6 +246,11 @@ const decreaseQuantity = () => {
   if (quantity.value > 1) quantity.value--;
 };
 
+// API "title" already includes the brand (e.g. "Наручные часы Casio Edifice ...");
+// strip the generic "наручные часы" filler so brand+model isn't duplicated when
+// we prepend the brand elsewhere. Mirrors WatchCard.vue's displayName.
+const displayTitle = (watch: { title: string }) => watch.title.replace(/^наручные\s+часы\s+/i, '').trim();
+
 const normalizeImage = (path?: string) => {
   if (!path) return '/watch.png';
   if (path.startsWith('http')) return path;
@@ -326,13 +331,13 @@ const plainDescription = (html?: string) => {
 };
 
 useSeoMeta({
-  title: () => (currentWatch.value ? `${currentWatch.value.brand} ${currentWatch.value.title}` : 'Часы не найдены'),
+  title: () => (currentWatch.value ? displayTitle(currentWatch.value) : 'Часы не найдены'),
   description: () =>
     currentWatch.value
       ? plainDescription(currentWatch.value.description) ||
-        `${currentWatch.value.brand} ${currentWatch.value.title} — купить в Saakian Watches. Гарантия подлинности.`
+        `${displayTitle(currentWatch.value)} — купить в Saakian Watches. Гарантия подлинности.`
       : 'Такого товара нет в каталоге Saakian Watches.',
-  ogTitle: () => (currentWatch.value ? `${currentWatch.value.brand} ${currentWatch.value.title}` : undefined),
+  ogTitle: () => (currentWatch.value ? displayTitle(currentWatch.value) : undefined),
   ogDescription: () => (currentWatch.value ? plainDescription(currentWatch.value.description) : undefined),
   ogImage: () => (currentWatch.value ? normalizeImage(currentWatch.value.images?.[0]) : undefined),
   ogType: 'website',
@@ -346,7 +351,7 @@ useHead(() => ({
           innerHTML: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Product',
-            name: currentWatch.value.title,
+            name: displayTitle(currentWatch.value),
             image: (currentWatch.value.images ?? []).map((img) => normalizeImage(img)),
             description: plainDescription(currentWatch.value.description),
             sku: currentWatch.value.custom_id,
