@@ -208,13 +208,17 @@ import { computed, nextTick, ref } from 'vue';
 import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal.js';
 import { useBonusState } from '~/src/composables/useBonusState';
+import { useNoIndex } from '~/src/composables/useCanonical';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import { useOrder } from '~/src/composables/useOrder.js';
 import ButtonUI from '~/src/UI/ButtonUI.vue';
 import OrderSuccessScreen from '~/src/UI/OrderSuccessScreen.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
-import Header from '../header/header.vue';
+import Header from '~/src/components/Header.vue';
 import { useYm } from '~/src/composables/useYm.js';
+
+useNoIndex();
+useSeoMeta({ title: 'Оформление доставки' });
 
 const deliveryType = ref<'cdek' | 'yandex'>('cdek');
 const address = ref('');

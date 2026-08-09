@@ -29,7 +29,7 @@ import { computed, ref } from 'vue';
 import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal';
 import { useApi } from '~/src/composables/useApi';
-import Header from '../header/header.vue';
+import Header from '~/src/components/Header.vue';
 
 const { basket } = useBasket();
 const { request } = useApi();

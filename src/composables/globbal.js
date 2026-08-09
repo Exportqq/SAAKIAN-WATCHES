@@ -9,7 +9,7 @@ export const globalRouting = () => {
 
   const isBasketPVZ = computed(() => route.path === '/Basket/PickUpDelivery');
 
-  const isCatalogActive = computed(() => route.path === '/Catalog/Catalog');
+  const isCatalogActive = computed(() => route.path === '/catalog');
 
   const redirectMain = () => {
     router.push('/');
@@ -40,7 +40,7 @@ export const globalRouting = () => {
   };
 
   const redirectHome = () => {
-    router.push('/home');
+    router.push('/');
   };
 
   const redirectAdmin = () => {
@@ -52,15 +52,15 @@ export const globalRouting = () => {
   };
 
   const redirectDeliveryInfo = () => {
-    router.push('/home/components/Contacts/components/Delivery');
+    router.push('/delivery');
   };
 
   const redirectPrivacyPolicy = () => {
-    router.push('/home/components/Contacts/components/PrivacyPolicy');
+    router.push('/privacy-policy');
   };
 
   const redirectReturnPolicy = () => {
-    router.push('/home/components/Contacts/components/ReturnPolicy');
+    router.push('/return-policy');
   };
 
   return {

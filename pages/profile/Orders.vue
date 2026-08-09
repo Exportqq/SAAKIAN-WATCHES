@@ -44,9 +44,9 @@
           <!-- ДОБАВЛЯЕМ ОТОБРАЖЕНИЕ ЦЕНЫ В СВЁРНУТОМ ВИДЕ -->
           <div class="mt-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-[18px] font-bold">{{ order.final_price.toLocaleString() }} ₽</span>
+              <span class="text-[18px] font-bold">{{ order.final_price.toLocaleString('ru-RU') }} ₽</span>
               <span v-if="order.bonus_used > 0" class="text-[13px] text-green-600">
-                (списано {{ order.bonus_used.toLocaleString() }} бонусов)
+                (списано {{ order.bonus_used.toLocaleString('ru-RU') }} бонусов)
               </span>
             </div>
             <span class="text-[13px] text-[#888]"
@@ -80,7 +80,7 @@
                 <div>
                   <p class="font-bold">{{ item.title }}</p>
                   <p class="text-[#666]">{{ item.brand }}</p>
-                  <p class="mt-2">{{ item.quantity }} × {{ item.price.toLocaleString() }} ₽</p>
+                  <p class="mt-2">{{ item.quantity }} × {{ item.price.toLocaleString('ru-RU') }} ₽</p>
                 </div>
               </div>
             </div>
@@ -88,17 +88,17 @@
             <div class="mt-6 border-t pt-4 space-y-1">
               <div class="flex justify-between text-[15px] text-[#666]">
                 <span>Сумма</span>
-                <span>{{ order.total_price.toLocaleString() }} ₽</span>
+                <span>{{ order.total_price.toLocaleString('ru-RU') }} ₽</span>
               </div>
 
               <div v-if="order.bonus_used > 0" class="flex justify-between text-[15px] text-green-600">
                 <span>Списано бонусами</span>
-                <span>− {{ order.bonus_used.toLocaleString() }} ₽</span>
+                <span>− {{ order.bonus_used.toLocaleString('ru-RU') }} ₽</span>
               </div>
 
               <div class="flex justify-between text-[17px] font-bold mt-2">
                 <span>Итого</span>
-                <span>{{ order.final_price.toLocaleString() }} ₽</span>
+                <span>{{ order.final_price.toLocaleString('ru-RU') }} ₽</span>
               </div>
             </div>
           </div>
@@ -116,7 +116,11 @@
 import { computed, onMounted, ref } from 'vue';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import { useOrder } from '~/src/composables/useOrder';
-import Header from '../header/header.vue';
+import { useNoIndex } from '~/src/composables/useCanonical';
+import Header from '~/src/components/Header.vue';
+
+useNoIndex();
+useSeoMeta({ title: 'Мои заказы' });
 
 const { getMyOrders } = useOrder();
 const { show, hide } = useGlobalLoader();

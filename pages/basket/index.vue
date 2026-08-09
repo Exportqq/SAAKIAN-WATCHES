@@ -19,7 +19,7 @@
           <p class="text-[13px] text-[#888] mt-0.5 mb-2">{{ item.watch.brand }} · {{ item.watch.mechanism }}</p>
 
           <div class="flex items-center justify-between">
-            <span class="text-[16px] font-semibold"> {{ item.watch.price.toLocaleString() }} ₽ </span>
+            <span class="text-[16px] font-semibold"> {{ item.watch.price.toLocaleString('ru-RU') }} ₽ </span>
 
             <div class="flex items-center gap-1.5">
               <button
@@ -59,12 +59,12 @@
 
           <div class="flex items-center gap-3">
             <div class="text-[28px] font-extrabold">
-              {{ previewData ? previewData.final_price.toLocaleString() : totalPrice.toLocaleString() }} ₽
+              {{ previewData ? previewData.final_price.toLocaleString('ru-RU') : totalPrice.toLocaleString('ru-RU') }} ₽
             </div>
 
             <div v-if="useBonusToggle && previewData?.bonus_to_use" class="text-right top-[5px] relative">
-              <div class="text-[15px] text-green-600">− {{ previewData.bonus_to_use.toLocaleString() }} ₽ бонусами</div>
-              <div class="text-[12px] text-[#999] line-through">{{ previewData.total_price.toLocaleString() }} ₽</div>
+              <div class="text-[15px] text-green-600">− {{ previewData.bonus_to_use.toLocaleString('ru-RU') }} ₽ бонусами</div>
+              <div class="text-[12px] text-[#999] line-through">{{ previewData.total_price.toLocaleString('ru-RU') }} ₽</div>
             </div>
           </div>
 
@@ -82,7 +82,7 @@
                 />
               </button>
 
-              <span class="text-[15px] text-[#666]"> Списать бонусы: {{ bonusBalance.toLocaleString() }} ₽ </span>
+              <span class="text-[15px] text-[#666]"> Списать бонусы: {{ bonusBalance.toLocaleString('ru-RU') }} ₽ </span>
             </div>
           </div>
         </div>
@@ -97,13 +97,13 @@
         <div class="w-full">
           <div class="flex items-end gap-[10px]">
             <div class="text-[20px] font-extrabold">
-              {{ previewData ? previewData.final_price.toLocaleString() : totalPrice.toLocaleString() }} ₽
+              {{ previewData ? previewData.final_price.toLocaleString('ru-RU') : totalPrice.toLocaleString('ru-RU') }} ₽
             </div>
 
             <div v-if="useBonusToggle && previewData?.bonus_to_use" class="text-right">
-              <div class="text-[14px] text-green-600">− {{ previewData.bonus_to_use.toLocaleString() }} ₽</div>
+              <div class="text-[14px] text-green-600">− {{ previewData.bonus_to_use.toLocaleString('ru-RU') }} ₽</div>
               <div v-if="!isMobile" class="text-[11px] text-[#999] line-through">
-                {{ previewData.total_price.toLocaleString() }} ₽
+                {{ previewData.total_price.toLocaleString('ru-RU') }} ₽
               </div>
             </div>
           </div>
@@ -122,7 +122,7 @@
                 />
               </button>
 
-              <span class="text-[12px] text-[#666]"> Списать бонусы: {{ bonusBalance.toLocaleString() }} ₽ </span>
+              <span class="text-[12px] text-[#666]"> Списать бонусы: {{ bonusBalance.toLocaleString('ru-RU') }} ₽ </span>
             </div>
           </div>
         </div>
@@ -156,14 +156,18 @@ import { useRouter } from 'vue-router';
 import { useBasket } from '~/src/composables/AddBasket';
 import { globalRouting } from '~/src/composables/globbal';
 import { useAuth } from '~/src/composables/useAuth';
+import { useNoIndex } from '~/src/composables/useCanonical';
 import { useBonus } from '~/src/composables/useBonus';
 import { useBonusState } from '~/src/composables/useBonusState';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import useWindowSizes from '~/src/composables/window_size.js';
 import AuthRequiredModal from '~/src/UI/AuthRequiredModal.vue';
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
-import Header from '../header/header.vue';
+import Header from '~/src/components/Header.vue';
 import { useYm } from '~/src/composables/useYm.js';
+
+useNoIndex();
+useSeoMeta({ title: 'Корзина' });
 
 const { basket, getBasket, addToBasket, removeFromBasket } = useBasket();
 const { show, hide } = useGlobalLoader();

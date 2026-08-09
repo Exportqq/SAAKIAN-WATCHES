@@ -20,6 +20,7 @@
         <div class="relative w-full aspect-square overflow-hidden">
           <img
             :src="normalizeImage(currentWatch.images?.[activeImage])"
+            :alt="`${currentWatch.brand} ${currentWatch.title}`"
             class="w-full h-full object-contain transition-transform duration-500 ease-out hover:scale-[1.03]"
           />
         </div>
@@ -34,6 +35,7 @@
             <span class="w-full aspect-square flex items-center justify-center">
               <img
                 :src="normalizeImage(img)"
+                :alt="`${currentWatch.brand} ${currentWatch.title} — фото ${index + 1}`"
                 loading="lazy"
                 class="max-w-full max-h-full object-contain transition-opacity duration-300"
                 :class="activeImage === index ? 'opacity-100' : 'opacity-35 hover:opacity-70'"
@@ -51,7 +53,7 @@
         </h1>
 
         <div class="flex items-center gap-3 mt-[20px]">
-          <span class="mono watch-price text-[28px]">{{ currentWatch.price.toLocaleString() }} ₽</span>
+          <span class="mono watch-price text-[28px]">{{ currentWatch.price.toLocaleString('ru-RU') }} ₽</span>
           <span class="h-[1px] w-[28px] bg-[#C9A24B]" />
         </div>
 
@@ -214,7 +216,8 @@ import { useWatch } from '~/src/composables/GetWatch';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
 import PopupUI from '~/src/UI/PopupUI/PopupUI.vue';
-import Header from '../header/header.vue';
+import Header from '~/src/components/Header.vue';
+import { useCanonical } from '~/src/composables/useCanonical';
 
 const route = useRoute();
 
@@ -305,14 +308,66 @@ const removeOneFromBasket = async () => {
   }
 };
 
-onMounted(async () => {
-  try {
-    show();
-    await getWatchById(route.params.id as string);
-    syncBasketQuantity();
-  } finally {
-    hide();
-  }
+// Товар грузится на сервере через useAsyncData, чтобы поисковый бот и
+// соцсети (Open Graph) получали реальную карточку товара в первом ответе
+// сервера, а не пустой лоадер, который раньше подставлялся до onMounted.
+await useAsyncData(`watch-${route.params.id}`, () => getWatchById(route.params.id as string));
+
+if (import.meta.server && !currentWatch.value) {
+  const event = useRequestEvent();
+  if (event) setResponseStatus(event, 404);
+}
+
+useCanonical();
+
+const plainDescription = (html?: string) => {
+  const text = (html ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  return text.length > 160 ? `${text.slice(0, 157)}...` : text;
+};
+
+useSeoMeta({
+  title: () => (currentWatch.value ? `${currentWatch.value.brand} ${currentWatch.value.title}` : 'Часы не найдены'),
+  description: () =>
+    currentWatch.value
+      ? plainDescription(currentWatch.value.description) ||
+        `${currentWatch.value.brand} ${currentWatch.value.title} — купить в Saakian Watches. Гарантия подлинности.`
+      : 'Такого товара нет в каталоге Saakian Watches.',
+  ogTitle: () => (currentWatch.value ? `${currentWatch.value.brand} ${currentWatch.value.title}` : undefined),
+  ogDescription: () => (currentWatch.value ? plainDescription(currentWatch.value.description) : undefined),
+  ogImage: () => (currentWatch.value ? normalizeImage(currentWatch.value.images?.[0]) : undefined),
+  ogType: 'website',
+});
+
+useHead(() => ({
+  script: currentWatch.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: currentWatch.value.title,
+            image: (currentWatch.value.images ?? []).map((img) => normalizeImage(img)),
+            description: plainDescription(currentWatch.value.description),
+            sku: currentWatch.value.custom_id,
+            brand: { '@type': 'Brand', name: currentWatch.value.brand },
+            offers: {
+              '@type': 'Offer',
+              url: `https://saakian-watches.ru${route.path}`,
+              priceCurrency: 'RUB',
+              price: currentWatch.value.price,
+              availability: currentWatch.value.in_stock
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            },
+          }),
+        },
+      ]
+    : [],
+}));
+
+onMounted(() => {
+  syncBasketQuantity();
 });
 </script>
 

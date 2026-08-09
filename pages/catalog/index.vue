@@ -193,7 +193,18 @@ import { useWatch, type WatchFilters, type WatchSort } from '~/src/composables/G
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 
 import WatchCard from '~/src/UI/WatchCard.vue';
-import Header from '../header/header.vue';
+import Header from '~/src/components/Header.vue';
+import { useCanonical } from '~/src/composables/useCanonical';
+
+useCanonical('/catalog');
+
+useSeoMeta({
+  title: 'Каталог часов',
+  description:
+    'Каталог оригинальных наручных часов Saakian Watches: фильтры по бренду и цене, гарантия подлинности, доставка по всей России.',
+  ogTitle: 'Каталог часов — Saakian Watches',
+  ogDescription: 'Оригинальные наручные часы проверенных брендов с гарантией подлинности.',
+});
 
 const { getWatches, loadMoreWatches, getBrands, watches, watchesHasMore, watchesLoadingMore } = useWatch();
 
@@ -320,9 +331,14 @@ const resetFilters = async () => {
   await applyFilters();
 };
 
-onMounted(async () => {
-  await Promise.all([loadBrands(), applyFilters()]);
+// Первая страница каталога и список брендов грузятся на сервере (useAsyncData),
+// чтобы поисковый бот видел товары уже в HTML, а не только после onMounted в браузере.
+await Promise.all([
+  useAsyncData('catalog-watches-initial', () => applyFilters()),
+  useAsyncData('catalog-brands', () => loadBrands()),
+]);
 
+onMounted(() => {
   observer = new IntersectionObserver(
     async (entries) => {
       const entry = entries[0];

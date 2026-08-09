@@ -111,12 +111,12 @@
 
                 <div class="text-right space-y-0.5">
                   <p v-if="order.bonus_used > 0" class="text-[12px] text-[#999] line-through">
-                    {{ order.total_price.toLocaleString() }} ₽
+                    {{ order.total_price.toLocaleString('ru-RU') }} ₽
                   </p>
                   <p v-if="order.bonus_used > 0" class="text-[12px] text-green-600">
-                    − {{ order.bonus_used.toLocaleString() }} ₽ бонусами
+                    − {{ order.bonus_used.toLocaleString('ru-RU') }} ₽ бонусами
                   </p>
-                  <p class="text-[15px] font-bold">{{ order.final_price.toLocaleString() }} ₽</p>
+                  <p class="text-[15px] font-bold">{{ order.final_price.toLocaleString('ru-RU') }} ₽</p>
                 </div>
 
                 <button class="text-[13px] text-red-500 font-semibold" @click="deleteOrder(order.id)">Удалить</button>
@@ -133,7 +133,7 @@
                   <p class="text-[12px] text-[#999]">{{ item.brand }}</p>
                 </div>
                 <div class="text-right">
-                  <p class="text-[13px] font-semibold">{{ item.price.toLocaleString() }} ₽</p>
+                  <p class="text-[13px] font-semibold">{{ item.price.toLocaleString('ru-RU') }} ₽</p>
                   <p class="text-[12px] text-[#999]">{{ item.quantity }} шт.</p>
                 </div>
               </div>
@@ -154,7 +154,7 @@
             <div class="space-y-1">
               <p class="text-[15px] font-semibold">{{ user.username }}</p>
               <p class="text-[13px] text-[#888]">
-                Бонусы: <span class="font-semibold text-black">{{ user.bonus_balance.toLocaleString() }} ₽</span>
+                Бонусы: <span class="font-semibold text-black">{{ user.bonus_balance.toLocaleString('ru-RU') }} ₽</span>
               </p>
             </div>
 
@@ -179,6 +179,10 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
+import { useNoIndex } from '~/src/composables/useCanonical';
+
+useNoIndex();
+useSeoMeta({ title: 'Админ-панель' });
 
 const API_URL = 'https://saakianwatches-lilexport.amvera.io';
 

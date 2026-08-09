@@ -1,5 +1,5 @@
 <template>
-  <header />
+  <Header />
 
   <section class="px-[100px] max-md:px-[20px] py-[80px] max-md:pt-[50px] max-md:pb-[20px]">
     <div class="max-w-[1400px] mx-auto">
@@ -88,7 +88,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import Contacts from '../Contacts.vue';
+import Header from '~/src/components/Header.vue';
+import Contacts from '~/src/components/home/Contacts.vue';
+import { useCanonical } from '~/src/composables/useCanonical';
+
+useCanonical('/privacy-policy');
+useSeoMeta({
+  title: 'Политика конфиденциальности',
+  description: 'Политика конфиденциальности Saakian Watches: какие данные собираются и как используются.',
+});
 
 const openIndex = ref<number | null>(0);
 

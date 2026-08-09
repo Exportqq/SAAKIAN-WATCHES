@@ -71,8 +71,12 @@
 import { ref } from 'vue';
 import { globalRouting } from '~/src/composables/globbal';
 import { useAdminAuth } from '~/src/composables/useAdminAuth';
+import { useNoIndex } from '~/src/composables/useCanonical';
 import { useAuth } from '~/src/composables/useAuth';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
+
+useNoIndex();
+useSeoMeta({ title: 'Вход и регистрация' });
 
 const { redirectProfile, redirectAdmin } = globalRouting();
 
