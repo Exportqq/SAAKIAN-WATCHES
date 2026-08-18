@@ -30,6 +30,12 @@ export interface WatchesPage {
   has_more: boolean;
 }
 
+// Цены Tissot в API приходят в долларах — приводим к рублям по фиксированному курсу с наценкой
+const TISSOT_PRICE_MULTIPLIER = 90 * 1.5;
+
+export const applyBrandPricing = <T extends Watch>(watch: T): T =>
+  watch.brand?.trim().toLowerCase() === 'tissot' ? { ...watch, price: watch.price * TISSOT_PRICE_MULTIPLIER } : watch;
+
 export type WatchSort = 'price_asc' | 'price_desc' | 'popular';
 
 export interface WatchFilters {
@@ -103,6 +109,7 @@ export const useWatch = () => {
       const params = buildParams(filters, 0, limit);
 
       const res = await request<WatchesPage>(`/watches?${params.toString()}`);
+      res.items = res.items.map(applyBrandPricing);
 
       watches.value = res.items;
       watchesTotal.value = res.total;
@@ -134,6 +141,7 @@ export const useWatch = () => {
       const params = buildParams(filters, watches.value.length, limit);
 
       const res = await request<WatchesPage>(`/watches?${params.toString()}`);
+      res.items = res.items.map(applyBrandPricing);
 
       watches.value.push(...res.items);
 
@@ -163,6 +171,7 @@ export const useWatch = () => {
       params.append('limit', String(limit));
 
       const res = await request<WatchesPage>(`/watches/new?${params.toString()}`);
+      res.items = res.items.map(applyBrandPricing);
 
       newWatches.value = res.items;
 
@@ -191,6 +200,7 @@ export const useWatch = () => {
       params.append('limit', String(limit));
 
       const res = await request<WatchesPage>(`/watches/hot?${params.toString()}`);
+      res.items = res.items.map(applyBrandPricing);
 
       hotWatches.value = res.items;
 
@@ -212,7 +222,7 @@ export const useWatch = () => {
     watchesLoading.value = true;
 
     try {
-      const res = await request<Watch>(`/watches/${id}`);
+      const res = applyBrandPricing(await request<Watch>(`/watches/${id}`));
 
       currentWatch.value = res;
 
