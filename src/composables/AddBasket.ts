@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import type { Watch } from './GetWatch';
+import { applyBrandPricing } from './GetWatch';
 import { useApi } from './useApi';
 import { useAuth } from './useAuth';
 
@@ -48,7 +49,7 @@ export const useBasket = () => {
   // как это делает /watches?search=...) — поэтому используем именно его
   const findWatchByCustomId = async (custom_id: string): Promise<Watch | null> => {
     try {
-      return await request<Watch>(`/watches/${encodeURIComponent(custom_id)}`);
+      return applyBrandPricing(await request<Watch>(`/watches/${encodeURIComponent(custom_id)}`));
     } catch {
       return null;
     }
@@ -83,6 +84,9 @@ export const useBasket = () => {
     try {
       // user_id обязателен как query-параметр
       const res = await request<BasketItem[]>(`/cart?user_id=${encodeURIComponent(userId)}`);
+      res.forEach((item) => {
+        item.watch = applyBrandPricing(item.watch);
+      });
       basket.value = res;
       return res;
     } catch (e: any) {
