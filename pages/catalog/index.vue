@@ -187,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import { useWatch, type WatchFilters, type WatchSort } from '~/src/composables/GetWatch';
 import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
@@ -195,6 +195,11 @@ import { useGlobalLoader } from '~/src/composables/useGlobalLoader';
 import WatchCard from '~/src/UI/WatchCard.vue';
 import Header from '~/src/components/Header.vue';
 import { useCanonical } from '~/src/composables/useCanonical';
+
+// По умолчанию Nuxt при переходе на страницу сам прокручивает её наверх
+// (roter's scrollBehavior), что перебивает восстановление скролла ниже.
+// Отключаем это для каталога и управляем скроллом вручную в onMounted.
+definePageMeta({ scrollToTop: false });
 
 useCanonical('/catalog');
 
@@ -210,11 +215,14 @@ const { getWatches, loadMoreWatches, getBrands, watches, watchesHasMore, watches
 
 const { show, hide } = useGlobalLoader();
 
-const search = ref('');
-const minPrice = ref<number | null>(null);
-const maxPrice = ref<number | null>(null);
+// Выбранные фильтры хранятся в useState, а не в обычном ref — иначе при
+// возврате со страницы товара поля фильтров сбрасывались бы, хотя список
+// (тоже из useState) остаётся отфильтрованным с прошлого раза.
+const search = useState<string>('catalog-search', () => '');
+const minPrice = useState<number | null>('catalog-min-price', () => null);
+const maxPrice = useState<number | null>('catalog-max-price', () => null);
 
-const selectedBrands = ref<string[]>([]);
+const selectedBrands = useState<string[]>('catalog-selected-brands', () => []);
 
 type SortValue = 'default' | WatchSort;
 
@@ -225,7 +233,7 @@ const sortOptions: { value: SortValue; label: string }[] = [
   { value: 'price_desc', label: 'Сначала дороже' },
 ];
 
-const selectedSort = ref<SortValue>('default');
+const selectedSort = useState<SortValue>('catalog-selected-sort', () => 'default');
 const sortOpen = ref(false);
 
 const currentSortLabel = computed(() => sortOptions.find((o) => o.value === selectedSort.value)?.label ?? 'Сортировка');
@@ -263,7 +271,7 @@ const loadBrands = async () => {
   }
 };
 
-const toggleBrand = (brand: string) => {
+const toggleBrand = async (brand: string) => {
   const index = selectedBrands.value.indexOf(brand);
 
   if (index === -1) {
@@ -271,6 +279,8 @@ const toggleBrand = (brand: string) => {
   } else {
     selectedBrands.value.splice(index, 1);
   }
+
+  await applyFilters();
 };
 
 const currentFilters = (): WatchFilters => ({
@@ -281,7 +291,18 @@ const currentFilters = (): WatchFilters => ({
   sort: selectedSort.value !== 'default' ? selectedSort.value : undefined,
 });
 
+let filterDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+const clearFilterDebounce = () => {
+  if (filterDebounceTimer) {
+    clearTimeout(filterDebounceTimer);
+    filterDebounceTimer = null;
+  }
+};
+
 const applyFilters = async () => {
+  clearFilterDebounce();
+
   show();
 
   try {
@@ -290,6 +311,21 @@ const applyFilters = async () => {
     hide();
   }
 };
+
+// Поиск и цена применяются автоматически по мере ввода, без кнопки «Найти».
+// Флаг нужен, чтобы программный сброс полей (resetFilters) не порождал
+// лишний отложенный запрос поверх уже выполненного applyFilters().
+let suppressAutoApply = false;
+
+watch([search, minPrice, maxPrice], () => {
+  if (suppressAutoApply) return;
+
+  clearFilterDebounce();
+
+  filterDebounceTimer = setTimeout(() => {
+    applyFilters();
+  }, 500);
+});
 
 const loadMore = async () => {
   if (watchesLoadingMore.value) return;
@@ -322,21 +358,49 @@ const submitMobile = async () => {
 };
 
 const resetFilters = async () => {
+  suppressAutoApply = true;
+
   search.value = '';
   minPrice.value = null;
   maxPrice.value = null;
   selectedBrands.value = [];
   selectedSort.value = 'default';
 
+  await nextTick();
+  suppressAutoApply = false;
+
   await applyFilters();
 };
+
+// watches/availableBrands живут в useState, то есть переживают переход на
+// страницу товара и обратно. isReturningVisit фиксируется до перезапроса,
+// чтобы при возврате из /watch/:id не перезатирать уже загруженный список
+// (включая дозагруженные через infinite-scroll страницы) первой страницей —
+// иначе контент под уже восстановленным скроллом просто исчезает.
+const catalogVisited = useState<boolean>('catalog-visited', () => false);
+const catalogScrollY = useState<number>('catalog-scroll-y', () => 0);
+const isReturningVisit = catalogVisited.value && watches.value.length > 0;
 
 // Первая страница каталога и список брендов грузятся на сервере (useAsyncData),
 // чтобы поисковый бот видел товары уже в HTML, а не только после onMounted в браузере.
 await Promise.all([
-  useAsyncData('catalog-watches-initial', () => applyFilters()),
-  useAsyncData('catalog-brands', () => loadBrands()),
+  useAsyncData('catalog-watches-initial', async () => {
+    if (isReturningVisit) return;
+    await applyFilters();
+  }),
+  useAsyncData('catalog-brands', async () => {
+    if (availableBrands.value.length) return;
+    await loadBrands();
+  }),
 ]);
+
+catalogVisited.value = true;
+
+// Запоминаем скролл перед уходом со страницы (например, на карточку товара),
+// чтобы вернуть его при возврате в каталог.
+onBeforeRouteLeave(() => {
+  catalogScrollY.value = window.scrollY;
+});
 
 onMounted(() => {
   observer = new IntersectionObserver(
@@ -357,6 +421,16 @@ onMounted(() => {
   if (loadMoreTrigger.value) {
     observer.observe(loadMoreTrigger.value);
   }
+
+  // scrollToTop отключён в definePageMeta, поэтому сами решаем, куда скроллить:
+  // при возврате из каталога — на сохранённую позицию, иначе — наверх.
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, isReturningVisit ? catalogScrollY.value : 0);
+      });
+    });
+  });
 
   window.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
